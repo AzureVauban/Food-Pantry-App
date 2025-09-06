@@ -55,4 +55,4 @@ read ISSUE_TYPE
 
 echo "Document '${DOCUMENT_PATH}' created successfully."
 
-# Credit to Jackson-Wu for the original script idea.
+#! Credit to Jackson-Wu for the original script idea.
