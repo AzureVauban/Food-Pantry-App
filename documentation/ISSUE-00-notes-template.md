@@ -1,6 +1,6 @@
 # ISSUE-00-notes-template
 
-**Primary Issue Type:** documentation
+**Primary Issue Type:** Documentation
 
 ## Objective:
 
