@@ -8,7 +8,13 @@ Set up a standardized documentation method to ensure that all future issues, fea
 
 ## Description:
 
-This branch introduces a documentation template file, a supporting script for creating new documentation entries, and updates to package.json for easier usage.
+This branch introduces a documentation template file, a supporting script for creating new documentation entries, and updates to package.json for easier usage. Run the script with the following command
+
+```bash
+# npm run create-doc <issue_number> <issue_title>
+
+npm run create-doc 18 Implement-Documentation-Method
+```
 
 ## Learnings:
 
