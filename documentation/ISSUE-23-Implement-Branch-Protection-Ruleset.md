@@ -4,20 +4,13 @@
 
 ## Objective:
 
-<!--What are the criteria for completion?-->
+Prevent direct commits to master and develop by requiring pull requests. Ensure master only accepts merges from develop.
 
 ## Description:
 
-<!--What is on this branch-->
+Configured GitHub branch protection rules to block direct pushes and enforce PR-based workflow. Added optional workflow check to ensure PRs to master only originate from develop.
 
-## Learnings:
+## Ruleset Summary
 
-<!--What new knowledge was gained while working on this objective?-->
-
-## What's next:
-
-<!--After the completion of this objective, where should the focus be next?-->
-
-## Miscellaneous Notes:
-
-<!--Any other notes or observations?-->
+- `master` branch only accepts PRs that originate from `develop`.  
+- A GitHub Actions workflow enforces this by automatically failing if a PR targets `master` from any branch other than `develop`.
