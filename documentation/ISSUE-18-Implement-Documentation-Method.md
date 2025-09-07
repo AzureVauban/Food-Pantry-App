@@ -1,6 +1,6 @@
 # ISSUE-18-Implement-Documentation-Method
 
-**Issue Type:** Documentation
+**Issue Type(s):** Documentation
 
 ## Objective:
 
