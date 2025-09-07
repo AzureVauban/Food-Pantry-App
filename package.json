@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -13,6 +12,7 @@
     "format:check": "prettier --check .",
     "create-doc": "bash ./scripts/create_document.sh",
     "test": "jest",
+    "test:run": "bash scripts/run_tests.sh",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci --runInBand"
   },
