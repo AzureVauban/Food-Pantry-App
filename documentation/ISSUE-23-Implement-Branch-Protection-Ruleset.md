@@ -12,5 +12,5 @@ Configured GitHub branch protection rules to block direct pushes and enforce PR-
 
 ## Ruleset Summary
 
-- `master` branch only accepts PRs that originate from `develop`.  
+- `master` branch only accepts PRs that originate from `develop`.
 - A GitHub Actions workflow enforces this by automatically failing if a PR targets `master` from any branch other than `develop`.
