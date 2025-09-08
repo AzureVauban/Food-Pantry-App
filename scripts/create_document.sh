@@ -28,7 +28,7 @@ mkdir -p "$DOCS_DIR"
 FILENAME="ISSUE-${ISSUE_NUMBER}-${ISSUE_TITLE}.md"
 DOCUMENT_PATH="${DOCS_DIR}/${FILENAME}"
 
-echo -n "Enter the issue type (e.g., Enhancement, Bug, Documentation): "
+echo -n "Enter the issue type(s) (e.g., Enhancement, Bug, Documentation): "
 read ISSUE_TYPE
 
 {
