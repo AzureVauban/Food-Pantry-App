@@ -32,7 +32,7 @@ An inventory manager for food, designed to help users stay efficient in meal pla
    npx expo install
    ```
 
-2. Start the app
+2. Start the appx
 
    ```bash
    npx expo start
