@@ -45,3 +45,4 @@ android
 
 # Jest coverage output
 coverage 
+.env
