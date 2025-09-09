@@ -72,3 +72,7 @@ The deliverables for this project will include both a mobile app and a web app. 
 The team has chosen to adopt a SCRUM-LITE approach, implemented through GitHub Projects. While traditional SCRUM relies on Epics, User Stories, and Tasks, this project will instead organize work using Milestones and Issues. Milestones serve as high-level goals that can function like Epics or User Stories, while Issues represent the actionable tasks required to complete them.
 
 A key reason for selecting this approach is its flexibility. Milestones and Issues can be easily added, adjusted, or reprioritized without the technical and mental overhead often associated with full SCRUM. At the same time, this method preserves the benefits of clear deadlines and structured planning. By keeping all workflow management within GitHub, the team avoids reliance on third-party tools such as Jira or Bitbucket, ensuring a lightweight and adaptable process that fits the project’s scope.
+
+### Hardware Requirements
+
+The only hardware requirements are a having a computer to code on and a mobile device (Android or IOS) to test on mobile platforms via Expo Go. There is no server needed because Firebase functions as a BAAS (Backend As a Service), the team will be utilizing this service to offload the work with the backend development.
