@@ -1,4 +1,5 @@
 # ISSUE-00B Project Propsal - Food Pantry App
+
 ## <span style="color: #60a5fa; font-weight: 500">Group Members</span>
 
 | Member         | Role                                              |
