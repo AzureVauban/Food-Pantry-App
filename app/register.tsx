@@ -1,6 +1,7 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { router } from 'expo-router';
 
 export default function Register() {
   return (
@@ -8,6 +9,22 @@ export default function Register() {
       <View style={styles.center}>
         <Text style={styles.title}>Register</Text>
         <Text style={styles.subtitle}>FoodPantryApp</Text>
+        <Pressable
+          style={styles.button}
+          onPress={() => router.replace('/login')}
+          accessibilityRole="button"
+          accessibilityLabel="Go to login"
+        >
+          <Text style={styles.buttonText}>Go to Login</Text>
+        </Pressable>
+        <Pressable
+          style={styles.button}
+          onPress={() => router.replace('/screens/home')}
+          accessibilityRole="button"
+          accessibilityLabel="Go to Home Screen"
+        >
+          <Text style={styles.buttonText}>Go to Home</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -23,4 +40,12 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 28, fontWeight: '600' },
   subtitle: { marginTop: 8, fontSize: 16, color: '#555' },
+  button: {
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#eee',
+    borderRadius: 8,
+  },
+  buttonText: { color: '#555', fontSize: 16 },
 });
