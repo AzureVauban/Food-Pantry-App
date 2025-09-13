@@ -80,7 +80,7 @@ export default function Navibar() {
               marginTop: 4,
             }}
           >
-            NoteNino
+            Food Pantry App
           </Text>
         </View>
 
