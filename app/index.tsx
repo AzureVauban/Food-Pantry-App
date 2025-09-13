@@ -21,9 +21,9 @@ export default function Index() {
     //! Add a small delay to ensure the Root Layout has finished mounting
     const timer = setTimeout(() => {
       if (Platform.OS === 'web') {
-      router.replace('/login');
+        router.replace('/login');
       } else {
-      router.replace('/welcome');
+        router.replace('/welcome');
       }
     }, 100);
 

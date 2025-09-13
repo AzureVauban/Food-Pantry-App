@@ -1,6 +1,5 @@
 import { Stack } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 /**
  * The `_layout.tsx` file defines the navigation layout and structure for all routes
@@ -12,31 +11,24 @@ import { Provider as PaperProvider } from 'react-native-paper';
  */
 
 export default function RootLayout() {
- 
-  return (    <PaperProvider>
-
- <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
-  <Stack.Screen name="index" />
+  return (
+    <PaperProvider>
+      <Stack
+        initialRouteName="index"
+        screenOptions={{
+          headerShown: true,
+          gestureEnabled: true,
+          statusBarHidden: false,
+          headerBackVisible: true,
+          headerBackTitle: 'back',
+          headerStyle: { backgroundColor: '#a1a1aa' },
+        }}
+      >
+        <Stack.Screen name="index" />
         <Stack.Screen name="welcome" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
-        <Stack.Screen
-          name="screens"
-          options={
-            Platform.OS !== 'web'
-              ? {
-                  headerShown: true,
-                  gestureEnabled: true,
-                  statusBarHidden: false,
-                  headerBackVisible: false,
-                  headerBackTitle: '',
-                  headerTitle: '',
-                  headerStyle: { backgroundColor: "white" },
-                }
-              : {}
-          }
-        />
-  </Stack>
-  </PaperProvider>
-  )
+      </Stack>
+    </PaperProvider>
+  );
 }
