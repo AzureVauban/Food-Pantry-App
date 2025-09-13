@@ -4,16 +4,18 @@
 class AppColors {
   // Dark theme palette
   static dark = {
-    background: '#0F172A', // slate-900
-    primary: '#CBD5E1', // slate-300 (used for text/icons on dark bg)
-    vibrantAccent: '#22D3EE', // cyan-400
+    secondary: '#1e40af', // used for header
+    background: '#a1a1aa',
+    primary: '#CBD5E1', // (used for text/icons on dark bg)
+    vibrantAccent: '#065f46',
   } as const;
 
   // Light theme palette (not yet used here, but available)
   static light = {
+    secondary: '#1e40af', // used for header
     background: '#FFFFFF',
-    primary: 'red', // slate-700
-    vibrantAccent: '#0EA5E9', // sky-500
+    primary: '#CBD5E1', // (used for text/icons on dark bg)
+    vibrantAccent: '#ef4444',
   } as const;
 }
 
@@ -21,4 +23,3 @@ class AppColors {
 export const colors = AppColors;
 
 export type Theme = 'dark' | 'light';
-

@@ -2,7 +2,7 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { router } from 'expo-router';
-
+import { colors } from '@/constants/colors';
 export default function Login() {
   return (
     <SafeAreaView style={styles.container}>
@@ -31,7 +31,7 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.light.background },
   center: {
     flex: 1,
     alignItems: 'center',
@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: { fontSize: 28, fontWeight: '600' },
-  subtitle: { marginTop: 8, fontSize: 16, color: '#555' },
+  subtitle: { marginTop: 8, fontSize: 16 },
   button: {
     marginTop: 16,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: '#eee',
+    backgroundColor: colors.light.primary,
     borderRadius: 8,
   },
-  buttonText: { color: '#555', fontSize: 16 },
+  buttonText: { color: 'black', fontSize: 16 },
 });

@@ -48,7 +48,6 @@ export default function Navibar() {
             title: 'settings',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="settings" size={size} color={color} />
-              
             ),
           }}
         />

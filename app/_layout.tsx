@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
+import { colors } from '@/constants/colors';
 /**
  * The `_layout.tsx` file defines the navigation layout and structure for all routes
  * at its directory level and below. In an Expo Router project, it acts like a wrapper
@@ -22,7 +23,7 @@ export default function RootLayout() {
           statusBarHidden: false,
           headerBackVisible: true,
           headerBackTitle: 'back',
-          headerStyle: { backgroundColor: '#a1a1aa' },
+          headerStyle: { backgroundColor: colors.light.primary },
         }}
       >
         <Stack.Screen name="index" />
@@ -40,7 +41,7 @@ export default function RootLayout() {
                   headerBackVisible: false,
                   headerBackTitle: '',
                   headerTitle: '',
-                  headerStyle: { backgroundColor: '#a1a1aa' },
+                  headerStyle: { backgroundColor: colors.light.primary },
                 }
               : {}
           }

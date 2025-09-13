@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet } from 'react-native';
-
+import { colors } from '@/constants/colors';
 export default function Settings() {
   return (
     <SafeAreaView style={styles.container}>
@@ -14,7 +14,7 @@ export default function Settings() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.light.background },
   center: {
     flex: 1,
     alignItems: 'center',
@@ -22,5 +22,5 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: { fontSize: 28, fontWeight: '600' },
-  subtitle: { marginTop: 8, fontSize: 16, color: '#555' },
+  subtitle: { marginTop: 8, fontSize: 16 },
 });
