@@ -95,7 +95,7 @@ export default function Navibar() {
               borderRadius: 8,
             }}
           >
-            <Ionicons name="mic" size={24} color={colors.dark.primary} />
+            <Ionicons name="cube" size={24} color={colors.dark.primary} />
             <Text
               style={{
                 color: colors.dark.primary,
@@ -118,7 +118,7 @@ export default function Navibar() {
             }}
           >
             <Ionicons
-              name="document-text"
+              name="basket"
               size={24}
               color={colors.dark.primary}
             />
@@ -130,12 +130,32 @@ export default function Navibar() {
                 textAlign: 'center',
               }}
             >
-              Transcripts
+              Grocery
             </Text>
           </Link>
-
+ <Link
+            href="/screens/recipes"
+            style={{
+              alignItems: 'center',
+              textDecorationLine: 'none',
+              padding: 8,
+              borderRadius: 8,
+            }}
+          >
+            <Ionicons name="logo-buffer" size={24} color={colors.dark.primary} />
+            <Text
+              style={{
+                color: colors.dark.primary,
+                marginTop: 4,
+                fontSize: 24,
+                textAlign: 'center',
+              }}
+            >
+              Recipes
+            </Text>
+          </Link>
           <Link
-            href="/screens/grocery"
+            href="/screens/settings"
             style={{
               alignItems: 'center',
               textDecorationLine: 'none',
@@ -155,27 +175,7 @@ export default function Navibar() {
               Settings
             </Text>
           </Link>
-          <Link
-            href="/screens/settings"
-            style={{
-              alignItems: 'center',
-              textDecorationLine: 'none',
-              padding: 8,
-              borderRadius: 8,
-            }}
-          >
-            <Ionicons name="person" size={24} color={colors.dark.primary} />
-            <Text
-              style={{
-                color: colors.dark.primary,
-                marginTop: 4,
-                fontSize: 24,
-                textAlign: 'center',
-              }}
-            >
-              Profile
-            </Text>
-          </Link>
+         
 
           <Link
             href="../login"
