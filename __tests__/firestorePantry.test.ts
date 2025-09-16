@@ -1,7 +1,10 @@
 // __tests__/firestorePantry.test.ts
-import { createUser, createPantry, addPantryItem } from '../utils/firestorePantry';
+import {
+  createUser,
+  createPantry,
+  addPantryItem,
+} from '../utils/firestorePantry';
 import { PantryItem } from '../types/pantry';
-
 
 describe('Firestore Pantry Integration', () => {
   it('should create a user and pantry in Firestore with a random userId', async () => {
@@ -33,7 +36,14 @@ describe('Firestore Pantry Integration', () => {
       imageUrl: '',
     };
     const itemId = await addPantryItem(userId, pantryId, item);
-    console.log('Added item with ID:', itemId, 'to pantry:', pantryId, 'for user:', userId);
+    console.log(
+      'Added item with ID:',
+      itemId,
+      'to pantry:',
+      pantryId,
+      'for user:',
+      userId,
+    );
     expect(typeof itemId).toBe('string');
   });
 });

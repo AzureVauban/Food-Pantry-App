@@ -1,20 +1,25 @@
-import { db } from "../utils/firebaseConfig";
-import { doc, collection, addDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { PantryItem } from "../types/pantry";
-
+import { db } from '../utils/firebaseConfig';
+import {
+  doc,
+  collection,
+  addDoc,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
+import { PantryItem } from '../types/pantry';
 
 export async function createUser(userId: string, name: string, email: string) {
-  const userDocRef = doc(db, "users", userId);
+  const userDocRef = doc(db, 'users', userId);
   await setDoc(userDocRef, { name, email });
 }
 
 export async function createPantry(userId: string, pantryName: string) {
-  const userDocRef = doc(db, "users", userId);
-  const pantriesRef = collection(userDocRef, "pantries");
+  const userDocRef = doc(db, 'users', userId);
+  const pantriesRef = collection(userDocRef, 'pantries');
 
   const pantryDoc = await addDoc(pantriesRef, {
     name: pantryName,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
   });
 
   return pantryDoc.id; // pantryId
@@ -23,10 +28,10 @@ export async function createPantry(userId: string, pantryName: string) {
 export async function addPantryItem(
   userId: string,
   pantryId: string,
-  item: Omit<PantryItem, "id">
+  item: Omit<PantryItem, 'id'>,
 ) {
-  const pantryRef = doc(db, "users", userId, "pantries", pantryId);
-  const itemsRef = collection(pantryRef, "items");
+  const pantryRef = doc(db, 'users', userId, 'pantries', pantryId);
+  const itemsRef = collection(pantryRef, 'items');
 
   const itemDoc = await addDoc(itemsRef, {
     name: item.name,
@@ -34,7 +39,7 @@ export async function addPantryItem(
     //expirationDate: item.expirationDate ? item.expirationDate : null,
     category: item.category ?? null,
     imageUrl: item.imageUrl ?? null,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
   });
 
   return itemDoc.id; // itemId
