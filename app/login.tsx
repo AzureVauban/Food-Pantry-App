@@ -1,51 +1,38 @@
-import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { router } from 'expo-router';
-import { colors } from '@/constants/colors';
-export default function Login() {
+// app/login.tsx
+import React, { useEffect } from "react";
+import { Button, View, Text } from "react-native";
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
+
+WebBrowser.maybeCompleteAuthSession();
+
+export default function LoginScreen() {
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com", // from Google Cloud console
+  });
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential)
+        .then((result) => {
+          console.log("User signed in:", result.user);
+        })
+        .catch((err) => console.error("Auth error:", err));
+    }
+  }, [response]);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.center}>
-        <Text style={styles.title}>Login</Text>
-        <Text style={styles.subtitle}>FoodPantryApp</Text>
-        <Pressable
-          style={styles.button}
-          onPress={() => router.replace('/register')}
-          accessibilityRole="button"
-          accessibilityLabel="Go to register"
-        >
-          <Text style={styles.buttonText}>Go to Register</Text>
-        </Pressable>
-        <Pressable
-          style={styles.button}
-          onPress={() => router.replace('/screens/home')}
-          accessibilityRole="button"
-          accessibilityLabel="Go to Home Screen"
-        >
-          <Text style={styles.buttonText}>Go to Home</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text>Login with Google</Text>
+      <Button
+        disabled={!request}
+        title="Sign in with Google"
+        onPress={() => promptAsync()}
+      />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.light.background },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: { fontSize: 28, fontWeight: '600' },
-  subtitle: { marginTop: 8, fontSize: 16 },
-  button: {
-    marginTop: 16,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: colors.light.primary,
-    borderRadius: 8,
-  },
-  buttonText: { color: 'black', fontSize: 16 },
-});
