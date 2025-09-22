@@ -30,6 +30,7 @@ An inventory manager for food, designed to help users stay efficient in meal pla
 
    ```bash
    npx expo install
+   expo install expo-auth-session
    ```
 
 2. Start the app

@@ -4,13 +4,13 @@ import { Button, View, Text } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { auth } from "./firebaseConfig";
+import { auth } from "../firebase/firebaseConfig";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // from Google Cloud console
+    clientId: "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com", // from Google Cloud console
   });
 
   useEffect(() => {
