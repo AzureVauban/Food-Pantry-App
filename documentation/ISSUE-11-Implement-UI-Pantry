@@ -16,8 +16,7 @@ Key Requirements:
 
 - This branch is used to create the UI for the pantry screen where users can view their pantry items. 
 The screen includes a list view component that displays pantry items in a scrollable format. If the pantry is empty, 
-a placeholder state is shown to inform users. The UI is styled according to the provided design mockups to ensure a 
-consistent and visually appealing user experience.
+a placeholder state is shown to inform users. The UI is styled according to the provided design mockups to ensure a consistent and visually appealing user experience.
 -As well as the home page where users can see their pantries and add new ones
 
 ## Learnings:
