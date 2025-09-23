@@ -1,12 +1,6 @@
+// app/login.tsx
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  View,
-  Text,
-  Image,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { Button, View, Text, Image } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import {
@@ -14,37 +8,26 @@ import {
   signInWithCredential,
   onAuthStateChanged,
   signOut,
-  setPersistence,
-  inMemoryPersistence,
   User,
 } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
-import { useRouter } from 'expo-router';
+import { useRouter } from 'expo-router'; // import router
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const router = useRouter(); // create router
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
   });
 
-  // Persist auth session explicitly (optional for React Native)
-  useEffect(() => {
-    setPersistence(auth, inMemoryPersistence).catch((err) => {
-      console.warn('Persistence setup failed', err);
-    });
-  }, []);
-
   // Listen to Firebase auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      setLoading(false);
     });
     return unsubscribe;
   }, []);
@@ -54,38 +37,21 @@ export default function LoginScreen() {
     if (response?.type === 'success') {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .then(() => {
-          console.log('✅ Signed in successfully');
-        })
-        .catch((err) => {
-          console.error('Auth error:', err);
-          Alert.alert('Login Error', err.message || 'Failed to sign in');
-        });
-    } else if (response?.type === 'error') {
-      Alert.alert('Login Cancelled', 'You cancelled the sign-in process.');
+      signInWithCredential(auth, credential).catch((err) =>
+        console.error('Auth error:', err),
+      );
     }
   }, [response]);
 
+  // Logout handler
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
         console.log('✅ User signed out');
-        setUser(null);
+        router.replace('/login'); // ✅ go back to login screen
       })
-      .catch((err) => {
-        console.error('❌ Sign out error:', err);
-        Alert.alert('Logout Error', err.message || 'Failed to sign out');
-      });
+      .catch((err) => console.error('❌ Sign out error:', err));
   };
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
