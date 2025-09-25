@@ -35,7 +35,7 @@ export default function Home() {
   const renderPantry = ({ item }: { item: Pantry }) => (
     <Link
       href={{
-        pathname: '/screens/pantry',
+        pathname: '/pantryview',
         params: { id: item.id, name: item.name },
       }}
       asChild
