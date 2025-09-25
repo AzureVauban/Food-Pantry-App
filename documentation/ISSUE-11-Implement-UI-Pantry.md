@@ -30,4 +30,5 @@ Key Requirements:
 
 ## Miscellaneous Notes:
 
-N/A
+- Had to rename `pantry.tsx` to `pantryview.tsx` and move it out of the `screens/` so that
+  the navigation bar would not force `pantryview` into the navigation bar
