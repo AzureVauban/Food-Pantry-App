@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView,Image, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, ScrollView,Image, TouchableOpacity, } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from 'react-native-paper';
 import { styles } from '../../constants/recipe-color';
 import MySearch from '../components/Searchbar';
+import { useRouter } from 'expo-router';
 
 interface Recipe {
+  recipe_id: string | number | (string | number)[] | null | undefined;
   recipe_name: string;
   recipe_description: string;
   recipe_image?: string;
@@ -23,8 +25,9 @@ export default function Recipes() {
   const [searchResults, setSearchResults] = useState<any>(null);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [showSaved, setShowSaved] = useState(false);
+  const router = useRouter();
+ 
 
-  // Load saved recipes on component style
   useEffect(() => {
     loadSavedRecipes();
   }, []);
@@ -77,7 +80,10 @@ export default function Recipes() {
   const RecipeCard = ({ recipe, isSaved }: { recipe: Recipe; isSaved: boolean }) => (
   <TouchableOpacity 
     style={styles.card}
-    onPress={() => Linking.openURL(recipe.recipe_url)}
+    onPress={() => router.push({
+      pathname: "/screens/recipedetails", 
+      params: { recipeId: recipe.recipe_id }
+    })}
   >
     <View style={styles.cardContent}>
       {recipe.recipe_image ? (
