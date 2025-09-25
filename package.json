@@ -11,6 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "create-doc": "bash ./scripts/create_document.sh",
+    "doc:create:auto": "./scripts/create_document_from_branch.sh",
+    "pr:create": "./scripts/create_pr.sh",
     "test": "jest",
     "test:run": "bash scripts/run_tests.sh",
     "test:watch": "jest --watch",
