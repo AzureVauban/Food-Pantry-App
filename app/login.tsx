@@ -18,7 +18,7 @@ import {
   inMemoryPersistence,
   User,
 } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
+import { auth } from '../utils/firebaseConfig';
 import { useRouter } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
