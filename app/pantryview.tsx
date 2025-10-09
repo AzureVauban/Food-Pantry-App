@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
+import { getPantryItems, addPantryItem } from '@/utils/firestorePantry';
 
 type Item = {
   id: string;
@@ -10,11 +20,64 @@ type Item = {
 };
 
 export default function PantryScreen() {
-  const { name } = useLocalSearchParams<{ id: string; name: string }>();
+  const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
 
-  const [items] = useState<Item[]>([
-    { id: '1', name: 'Sample Item', quantity: '1 pc' },
-  ]);
+  const userId = 'user_3fi4yhwj';
+
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemQuantity, setNewItemQuantity] = useState('');
+
+  
+  useEffect(() => {
+    async function fetchItems() {
+      try {
+        const pantryItems = await getPantryItems(userId, id);
+        setItems(
+          pantryItems.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: String(item.quantity),
+          }))
+        );
+      } catch (err) {
+        console.error('Error fetching pantry items:', err);
+        setError('Failed to load pantry items');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchItems();
+  }, [id]);
+
+  const handleAddItem = async () => {
+  if (!newItemName.trim() || !newItemQuantity.trim()) return;
+
+  try {
+    const itemData = {
+      name: newItemName.trim(),
+      quantity: Number(newItemQuantity.trim()),
+    };
+
+    await addPantryItem(userId, id, itemData);
+    setItems([
+      ...items,
+      { id: Date.now().toString(), ...itemData, quantity: String(itemData.quantity) },
+    ]);
+    setModalVisible(false);
+    setNewItemName('');
+    setNewItemQuantity('');
+  } catch (err) {
+    console.error('Error adding pantry item:', err);
+    setError('Failed to add item');
+  }
+};
+
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.itemCard}>
@@ -27,15 +90,63 @@ export default function PantryScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>{name}</Text>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <ActivityIndicator size="large" color="#6B7280" style={{ marginTop: 40 }} />
+      ) : error ? (
+        <Text style={styles.empty}>{error}</Text>
+      ) : items.length === 0 ? (
         <Text style={styles.empty}>This pantry is empty.</Text>
       ) : (
-        <FlatList
-          data={items}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-        />
+        <FlatList data={items} renderItem={renderItem} keyExtractor={(item) => item.id} />
       )}
+
+      {/* 🔹 Add Item Button */}
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Text style={styles.addButtonText}>➕ Add Item</Text>
+      </TouchableOpacity>
+
+      {/* 🔹 Add Item Modal */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Item</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Item name"
+              value={newItemName}
+              onChangeText={setNewItemName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Quantity (e.g., 2 cans)"
+              value={newItemQuantity}
+              onChangeText={setNewItemQuantity}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#2563EB' }]}
+                onPress={handleAddItem}
+              >
+                <Text style={styles.modalButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -54,4 +165,35 @@ const styles = StyleSheet.create({
   itemName: { fontSize: 16, fontWeight: '600' },
   itemQuantity: { fontSize: 14, color: '#6B7280' },
   empty: { textAlign: 'center', marginTop: 20, color: '#9CA3AF' },
+  addButton: {
+    backgroundColor: '#2563EB',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  addButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+  },
+  modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 16,
+  },
+  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
+  modalButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  modalButtonText: { color: '#fff', fontWeight: '600' },
 });

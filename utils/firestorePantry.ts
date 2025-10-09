@@ -5,6 +5,7 @@ import {
   addDoc,
   serverTimestamp,
   setDoc,
+  getDocs,
 } from 'firebase/firestore';
 import { PantryItem } from '../types/pantry';
 
@@ -44,3 +45,27 @@ export async function addPantryItem(
 
   return itemDoc.id; // itemId
 }
+ export async function getPantryItems(userId: string, pantryId: string): Promise<PantryItem[]> {
+  const itemsRef = collection(db, 'users', userId, 'pantries', pantryId, 'items');
+  const snapshot = await getDocs(itemsRef);
+
+  const items: PantryItem[] = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<PantryItem, 'id'>),
+  }));
+
+  return items;
+}
+
+  import { deleteDoc } from 'firebase/firestore';
+  
+  export async function editPantryItem(
+    userId: string,
+    pantryId: string,
+    itemId: string,
+    updateData: Partial<PantryItem>,
+  ) {
+    const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
+    await setDoc(itemRef, updateData, { merge: true }); 
+  }
+    
