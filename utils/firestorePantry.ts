@@ -68,4 +68,13 @@ export async function addPantryItem(
     const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
     await setDoc(itemRef, updateData, { merge: true }); 
   }
+
+  export async function deletePantryItem(
+    userId: string,
+    pantryId: string,
+    itemId: string,
+  ) {
+    const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
+    await deleteDoc(itemRef);
+  }
     

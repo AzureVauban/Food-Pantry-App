@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import { getPantryItems, addPantryItem } from '@/utils/firestorePantry';
+import { getPantryItems, addPantryItem, deletePantryItem, editPantryItem } from '@/utils/firestorePantry';
 
 type Item = {
   id: string;
@@ -77,14 +77,31 @@ export default function PantryScreen() {
     setError('Failed to add item');
   }
 };
+const handleDeletedItem = async (itemId: string) => {
+  await deletePantryItem(userId, id, itemId);
+  setItems(items.filter((item) => item.id !== itemId));
+}
 
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.itemCard}>
       <Text style={styles.itemName}>{item.name}</Text>
       <Text style={styles.itemQuantity}>{item.quantity}</Text>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeletedItem(item.id)}
+      >
+        <Text style={styles.deleteButtonText}>Delete</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => editPantryItem(userId, id, item.id, { name: item.name, quantity: Number(item.quantity) }) }
+      >
+        <Text style={styles.editButtonText}>Edit</Text>
+      </TouchableOpacity>
     </View>
   );
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -196,4 +213,15 @@ const styles = StyleSheet.create({
   modalButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
   modalButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
   modalButtonText: { color: '#fff', fontWeight: '600' },
+
+  deleteButton: { marginLeft: 10, justifyContent: 'center'
+  },
+  deleteButtonText: { fontSize: 18 
+  },
+
+  editButton: { marginLeft: 10, justifyContent: 'center'
+  },
+  editButtonText: { fontSize: 18 
+  }, 
+
 });
