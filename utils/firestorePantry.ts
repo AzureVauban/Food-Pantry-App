@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { PantryItem } from '../types/pantry';
 
+
 export async function createUser(userId: string, name: string, email: string) {
   const userDocRef = doc(db, 'users', userId);
   await setDoc(userDocRef, { name, email });
@@ -77,4 +78,24 @@ export async function addPantryItem(
     const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
     await deleteDoc(itemRef);
   }
-    
+
+//   export async function getPantries(userId: string)
+// : Promise<{ id: string; name: string }[]> {
+//   const pantriesRef = collection(db, 'users', userId, 'pantries');
+//   const snapshot = await getDocs(pantriesRef);
+//   const pantries = snapshot.docs.map((doc) => ({
+//     id: doc.id,
+//     name: (doc.data() as { name: string }).name,
+//   }));
+//   return pantries;
+// }
+
+export async function getPantries(userId: string) {
+  const pantriesRef = collection(doc(db, 'users', userId), 'pantries');
+  const snapshot = await getDocs(pantriesRef);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    name: doc.data().name,
+  }));
+}
+
