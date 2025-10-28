@@ -3,12 +3,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet } from 'react-native';
 import MySearch from '../components/Searchbar';
 export default function Recipes() {
-  
   return (
     <SafeAreaView style={styles.container}>
       <MySearch />
       <View style={styles.center}>
-        <Text style={styles.title}>Recipes</Text> 
+        <Text style={styles.title}>Recipes</Text>
         <Text style={styles.subtitle}>FoodPantryApp</Text>
       </View>
     </SafeAreaView>

@@ -18,23 +18,26 @@ type Pantry = {
 
 export default function Home() {
   const [pantries, setPantries] = useState<Pantry[]>([
-    { id: "1", name: "Pantry 1" },
+    { id: '1', name: 'Pantry 1' },
   ]);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [newPantryName, setNewPantryName] = useState("");
+  const [newPantryName, setNewPantryName] = useState('');
 
   const addPantry = () => {
-    if (!newPantryName.trim()) return; 
+    if (!newPantryName.trim()) return;
     const newId = String(Date.now());
     setPantries([...pantries, { id: newId, name: newPantryName.trim() }]);
-    setNewPantryName("");
+    setNewPantryName('');
     setModalVisible(false);
   };
 
   const renderPantry = ({ item }: { item: Pantry }) => (
     <Link
-      href={{ pathname: "/screens/pantry", params: { id: item.id, name: item.name } }}
+      href={{
+        pathname: '/screens/pantry',
+        params: { id: item.id, name: item.name },
+      }}
       asChild
     >
       <TouchableOpacity style={styles.pantryCard}>
@@ -58,7 +61,10 @@ export default function Home() {
         />
       )}
 
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={styles.addButtonText}>➕ Add Pantry</Text>
       </TouchableOpacity>
       <Modal
@@ -78,13 +84,13 @@ export default function Home() {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#6B7280" }]}
+                style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#2563EB" }]}
+                style={[styles.modalButton, { backgroundColor: '#2563EB' }]}
                 onPress={addPantry}
               >
                 <Text style={styles.modalButtonText}>Add</Text>
@@ -93,7 +99,6 @@ export default function Home() {
           </View>
         </View>
       </Modal>
-      
     </SafeAreaView>
   );
 }

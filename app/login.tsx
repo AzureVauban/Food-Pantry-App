@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, Image, ActivityIndicator, Alert } from 'react-native';
+import {
+  Button,
+  View,
+  Text,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import {
@@ -22,7 +29,8 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
+    clientId:
+      '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
   });
 
   // Persist auth session explicitly (optional for React Native)
@@ -84,7 +92,11 @@ export default function LoginScreen() {
       {!user ? (
         <>
           <Text>Login with Google</Text>
-          <Button disabled={!request} title="Sign in with Google" onPress={() => promptAsync()} />
+          <Button
+            disabled={!request}
+            title="Sign in with Google"
+            onPress={() => promptAsync()}
+          />
         </>
       ) : (
         <>
