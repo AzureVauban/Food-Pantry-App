@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Searchbar } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 
-
 const MySearch = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -17,7 +16,7 @@ const MySearch = () => {
 };
 
 const styles = StyleSheet.create({
-    looks: {borderRadius: 0, borderColor: 'black', },
+  looks: { borderRadius: 0, borderColor: 'black' },
 });
 
 export default MySearch;
