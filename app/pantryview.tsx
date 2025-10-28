@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { getPantryItems, addPantryItem, deletePantryItem, editPantryItem } from '@/utils/firestorePantry';
+import { getAuth,onAuthStateChanged } from 'firebase/auth';
 
 type Item = {
   id: string;
@@ -22,7 +23,8 @@ type Item = {
 export default function PantryScreen() {
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
 
-  const userId = 'user_3fi4yhwj';
+  //const userId = 'user_3fi4yhwj';
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,9 +36,12 @@ export default function PantryScreen() {
 
   
   useEffect(() => {
-    async function fetchItems() {
+  const auth = getAuth();
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      setUserId(user.uid);
       try {
-        const pantryItems = await getPantryItems(userId, id);
+        const pantryItems = await getPantryItems(user.uid, id);
         setItems(
           pantryItems.map((item) => ({
             id: item.id,
@@ -50,13 +55,19 @@ export default function PantryScreen() {
       } finally {
         setLoading(false);
       }
+    } else {
+      setUserId(null);
+      setItems([]);
+      setLoading(false);
     }
+  });
 
-    fetchItems();
-  }, [id]);
+  return () => unsubscribe();
+}, [id]);
+
 
   const handleAddItem = async () => {
-  if (!newItemName.trim() || !newItemQuantity.trim()) return;
+  if (!newItemName.trim() || !newItemQuantity.trim() || !userId) return;
 
   try {
     const itemData = {
@@ -64,11 +75,9 @@ export default function PantryScreen() {
       quantity: Number(newItemQuantity.trim()),
     };
 
-    await addPantryItem(userId, id, itemData);
-    setItems([
-      ...items,
-      { id: Date.now().toString(), ...itemData, quantity: String(itemData.quantity) },
-    ]);
+    const newId = await addPantryItem(userId, id, itemData);
+    setItems([...items, { id: newId, ...itemData, quantity: String(itemData.quantity) }]);
+    
     setModalVisible(false);
     setNewItemName('');
     setNewItemQuantity('');
@@ -78,6 +87,7 @@ export default function PantryScreen() {
   }
 };
 const handleDeletedItem = async (itemId: string) => {
+  if(!userId) return;
   await deletePantryItem(userId, id, itemId);
   setItems(items.filter((item) => item.id !== itemId));
 }
@@ -95,12 +105,22 @@ const handleDeletedItem = async (itemId: string) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.editButton}
-        onPress={() => editPantryItem(userId, id, item.id, { name: item.name, quantity: Number(item.quantity) }) }
-      >
-        <Text style={styles.editButtonText}>Edit</Text>
-      </TouchableOpacity>
-    </View>
-  );
+        onPress={() => {
+          if (!userId || !id){
+            console.warn('User ID or Pantry ID is missing');
+            return;
+          }
+
+          editPantryItem(userId, id, item.id, {
+            name: item.name,
+            quantity: Number(item.quantity),
+          });
+          }}
+          >
+            <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
+            </View>
+            );
   
 
   return (

@@ -10,8 +10,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { createPantry, getPantries } from '@/utils/firestorePantry';
+import { getAuth,onAuthStateChanged,signOut} from 'firebase/auth';
 
 
 type Pantry = {
@@ -20,15 +21,32 @@ type Pantry = {
 };
 
 export default function Home() {
-  const userId = 'user_3fi4yhwj'; // Placeholder user ID for demonstration
+  // const userId = 'user_3fi4yhwj'; // Placeholder user ID for demonstration
 
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [pantries, setPantries] = useState<Pantry[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [newPantryName, setNewPantryName] = useState('');
+  const router = useRouter();
+  const auth = getAuth();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+        setUserName(user.displayName || 'User');
+      }else{
+        router.replace('/login');
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     async function fetchPantries() {
+      if (!userId) return;
       try {
         const fetched = await getPantries(userId);
         setPantries(fetched);
@@ -39,10 +57,10 @@ export default function Home() {
       }
     }
     fetchPantries();
-  }, []);
+  }, [userId]);
 
   const addPantry = async () => {
-    if (!newPantryName.trim()) return;
+    if (!newPantryName.trim() || !userId) return;
     try {
       const pantryId = await createPantry(userId, newPantryName.trim());
       setPantries([...pantries, { id: pantryId, name: newPantryName.trim() }]);
@@ -50,6 +68,15 @@ export default function Home() {
       setModalVisible(false);
     } catch (err) {
       console.error('Error adding pantry:', err);
+    }
+  };
+
+  const handleLogout = () => {
+    try {
+      signOut(auth);
+      router.replace('/login');
+    } catch (err) {
+      console.error('Error signing out:', err);
     }
   };
 
