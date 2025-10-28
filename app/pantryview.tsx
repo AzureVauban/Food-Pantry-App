@@ -13,6 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { getPantryItems, addPantryItem, deletePantryItem, editPantryItem } from '@/utils/firestorePantry';
 import { getAuth,onAuthStateChanged } from 'firebase/auth';
+const SEARCH_URL = 'https://searchfoodshttp-ahrruxhnza-uc.a.run.app';
+//const SEARCH_URL = 'https://searchfoods-ahrruxhnza-uc.a.run.app';
+const DETAILS_URL = 'https://getfooddetails-ahrruxhnza-uc.a.run.app';
 
 type Item = {
   id: string;
@@ -33,6 +36,9 @@ export default function PantryScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemQuantity, setNewItemQuantity] = useState('');
+
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   
   useEffect(() => {
@@ -86,6 +92,46 @@ export default function PantryScreen() {
     setError('Failed to add item');
   }
 };
+
+const handleSearchFood = async (query: string) => {
+  setNewItemName(query);
+  if (query.length < 3) {
+    setSearchResults([]);
+    return;
+  }
+
+  setSearchLoading(true);
+  try {
+    const res = await fetch(`${SEARCH_URL}?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    setSearchResults(data.foods || []);
+  } catch (err) {
+    console.error('Error searching foods:', err);
+  } finally {
+    setSearchLoading(false);
+  }
+};
+
+const handleSelectFood = async (foodId: string) => {
+  try {
+    const res = await fetch(`${DETAILS_URL}?food_id=${foodId}`);
+    const details = await res.json();
+
+    setNewItemName(details.food_name || '');
+    // Try to find serving text, calories, etc.
+    const serving = details.servings?.serving?.[0];
+    const quantityText = serving
+      ? `${serving.serving_description || '1 serving'} (${serving.calories || '?'} kcal)`
+      : '1';
+    setNewItemQuantity(quantityText);
+
+    setSearchResults([]);
+  } catch (err) {
+    console.error('Error fetching food details:', err);
+  }
+};
+
+
 const handleDeletedItem = async (itemId: string) => {
   if(!userId) return;
   await deletePantryItem(userId, id, itemId);
@@ -134,7 +180,7 @@ const handleDeletedItem = async (itemId: string) => {
       ) : items.length === 0 ? (
         <Text style={styles.empty}>This pantry is empty.</Text>
       ) : (
-        <FlatList data={items} renderItem={renderItem} keyExtractor={(item) => item.id} />
+        <FlatList data={items} renderItem={renderItem} keyExtractor={(item) => item.id } />
       )}
 
       {/* 🔹 Add Item Button */}
@@ -155,10 +201,32 @@ const handleDeletedItem = async (itemId: string) => {
 
             <TextInput
               style={styles.input}
-              placeholder="Item name"
+              placeholder="Search Food"
               value={newItemName}
-              onChangeText={setNewItemName}
+              onChangeText={handleSearchFood}
             />
+            {searchLoading && (
+              <ActivityIndicator size="small" color="#6B7280" style={{ marginVertical: 10 }} />
+            )}
+            <FlatList
+              style = {{ maxHeight: 200}}
+              data={searchResults}
+              keyExtractor={(item) => item.food_id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.searchItem}
+                  onPress={() => handleSelectFood(item.food_id)}
+                >
+                  <Text style={{ fontWeight: '600' }}>{item.food_name}</Text>
+                  {item.brand_name && <Text style={{ color: '#6B7280' }}>{item.brand_name}</Text>}
+                  {item.food_description && (
+                    <Text style={{ color: '#9CA3AF', fontSize: 12 }}>
+                      {item.food_description.split(' | ')[0]} {/* usually has "Calories: 89 kcal | Fat: 0.3g ..." */}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              )}
+/>
             <TextInput
               style={styles.input}
               placeholder="Quantity (e.g., 2 cans)"
@@ -243,5 +311,11 @@ const styles = StyleSheet.create({
   },
   editButtonText: { fontSize: 18 
   }, 
+
+  searchItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
 
 });
