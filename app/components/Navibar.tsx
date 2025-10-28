@@ -117,11 +117,7 @@ export default function Navibar() {
               borderRadius: 8,
             }}
           >
-            <Ionicons
-              name="basket"
-              size={24}
-              color={colors.dark.primary}
-            />
+            <Ionicons name="basket" size={24} color={colors.dark.primary} />
             <Text
               style={{
                 color: colors.dark.primary,
@@ -133,7 +129,7 @@ export default function Navibar() {
               Grocery
             </Text>
           </Link>
- <Link
+          <Link
             href="/screens/recipes"
             style={{
               alignItems: 'center',
@@ -142,7 +138,11 @@ export default function Navibar() {
               borderRadius: 8,
             }}
           >
-            <Ionicons name="logo-buffer" size={24} color={colors.dark.primary} />
+            <Ionicons
+              name="logo-buffer"
+              size={24}
+              color={colors.dark.primary}
+            />
             <Text
               style={{
                 color: colors.dark.primary,
@@ -175,7 +175,6 @@ export default function Navibar() {
               Settings
             </Text>
           </Link>
-         
 
           <Link
             href="../login"
