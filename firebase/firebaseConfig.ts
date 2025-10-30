@@ -1,10 +1,13 @@
-// app/firebaseConfig.ts
+// firebase/firebaseConfig.ts
+import { Platform } from "react-native";
 import { initializeApp, getApps } from "firebase/app";
 import {
   getAuth,
   setPersistence,
-  browserLocalPersistence, // persists across refresh/restart
+  browserLocalPersistence,
+  inMemoryPersistence,
 } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlS3SgOSZnlej08__L47IN_i5GPiDuRK4",
@@ -12,24 +15,31 @@ const firebaseConfig = {
   projectId: "food-pan-94155",
   storageBucket: "food-pan-94155.firebasestorage.app",
   messagingSenderId: "941431420769",
-  appId: "1:941431420769:web:0f6b81aa86781388613720"
+  appId: "1:941431420769:web:0f6b81aa86781388613720",
 };
 
-// 1. Single Firebase app
+// 1. Make sure we only ever initialize the Firebase app once
 const app = getApps().length ? getApps()[0]! : initializeApp(firebaseConfig);
 
-// 2. Create auth instance
+// 2. Auth instance for this app
 const auth = getAuth(app);
 
-// 3. Set persistence synchronously at module load
-// We'll wrap this in a Promise so callers can wait for it.
+// 3. Firestore instance for this app
+const db = getFirestore(app);
+
+// 4. Configure persistence once per platform and expose a promise so callers can wait
 const persistenceReady = (async () => {
   try {
-    await setPersistence(auth, browserLocalPersistence);
-    console.log("[auth] persistence set to browserLocalPersistence");
+    if (Platform.OS === "web") {
+      await setPersistence(auth, browserLocalPersistence);
+      console.log("[auth] web persistence: browserLocalPersistence");
+    } else {
+      await setPersistence(auth, inMemoryPersistence);
+      console.log("[auth] native persistence: inMemoryPersistence");
+    }
   } catch (err) {
-    console.warn("[auth] failed to set persistence, fallback session only:", err);
+    console.warn("[auth] failed to set persistence:", err);
   }
 })();
 
-export { app, auth, persistenceReady };
+export { app, auth, db, persistenceReady };
