@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView, Image, TouchableOpacity, Linking, } from 'react-native';
+import { View, Text, ScrollView,Image, TouchableOpacity, Linking } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Button } from 'react-native-paper';
 import { styles } from '../../constants/recipe-color';
 import MySearch from '../components/Searchbar';
 
@@ -19,12 +21,60 @@ interface Recipe {
 
 export default function Recipes() {
   const [searchResults, setSearchResults] = useState<any>(null);
+  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
 
-  const handleSearchResults = (results: any) => {
-    setSearchResults(results);
+  // Load saved recipes on component style
+  useEffect(() => {
+    loadSavedRecipes();
+  }, []);
+
+  const loadSavedRecipes = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('savedRecipes');
+      if (saved) {
+        setSavedRecipes(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error loading saved recipes:', error);
+    }
   };
 
-  const RecipeCard = ({ recipe }: { recipe: Recipe }) => (
+  const saveRecipe = async (recipe: Recipe) => {
+    try {
+      const updatedRecipes = [...savedRecipes, recipe];
+      await AsyncStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
+      setSavedRecipes(updatedRecipes);
+      alert('Recipe saved!');
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      alert('Failed to save recipe');
+    }
+  };
+
+  const removeRecipe = async (recipeToRemove: Recipe) => {
+    try {
+      const updatedRecipes = savedRecipes.filter(
+        recipe => recipe.recipe_name !== recipeToRemove.recipe_name
+      );
+      await AsyncStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
+      setSavedRecipes(updatedRecipes);
+      alert('Recipe removed!');
+    } catch (error) {
+      console.error('Error removing recipe:', error);
+      alert('Failed to remove recipe');
+    }
+  };
+
+  // Handler for search results passed to MySearch
+  const handleSearchResults = (results: any) => {
+  console.log('Search results received:', results); // Add this line
+  setSearchResults(results);
+  };
+
+  
+
+  const RecipeCard = ({ recipe, isSaved }: { recipe: Recipe; isSaved: boolean }) => (
   <TouchableOpacity 
     style={styles.card}
     onPress={() => Linking.openURL(recipe.recipe_url)}
@@ -43,7 +93,9 @@ export default function Recipes() {
       )}
       
       <View style={styles.recipeInfo}>
-        <Text style={styles.recipeName} numberOfLines={2}>{recipe.recipe_name}</Text>
+        <Text style={styles.recipeName} numberOfLines={2}>
+          {recipe.recipe_name}
+        </Text>
         <Text style={styles.recipeDescription} numberOfLines={2}>
           {recipe.recipe_description}
         </Text>
@@ -62,6 +114,21 @@ export default function Recipes() {
             🥑 {recipe.recipe_nutrition.fat}g
           </Text>
         </View>
+
+        <Button
+          mode="contained"
+          onPress={(e) => {
+            e.stopPropagation();
+            if (isSaved) {
+              removeRecipe(recipe);
+            } else {
+              saveRecipe(recipe);
+            }
+          }}
+          style={styles.saveButton}
+        >
+          {isSaved ? 'Remove' : 'Save Recipe'}
+        </Button>
       </View>
     </View>
   </TouchableOpacity>
@@ -69,19 +136,51 @@ export default function Recipes() {
   
   return (
     <SafeAreaView style={styles.container}>
-      <MySearch onSearchResults={handleSearchResults} />
+      <View style={styles.header}>
+        <Button
+          mode="contained"
+          onPress={() => setShowSaved(!showSaved)}
+          style={styles.toggleButton}
+        >
+          {showSaved ? 'Show Search' : 'Show Saved'}
+        </Button>
+      </View>
+
+      {!showSaved && <MySearch onSearchResults={handleSearchResults} />}
+      
       <ScrollView style={styles.resultsContainer}>
-        {searchResults?.recipes?.recipe ? (
-          <View>
-            {searchResults.recipes.recipe.map((recipe: Recipe, index: number) => (
-              <RecipeCard key={index} recipe={recipe} />
-            ))}
-          </View>
+        {showSaved ? (
+          savedRecipes.length > 0 ? (
+            <View>
+              {savedRecipes.map((recipe: Recipe, index: number) => (
+                <RecipeCard key={index} recipe={recipe} isSaved={true} />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.center}>
+              <Text style={styles.subtitle}>No saved recipes yet</Text>
+            </View>
+          )
         ) : (
-          <View style={styles.center}>
-            <Text style={styles.title}>Recipes</Text> 
-            <Text style={styles.subtitle}>Search for recipes above</Text>
-          </View>
+          searchResults?.recipes?.recipe ? (
+            <View>
+              {searchResults.recipes.recipe.map((recipe: Recipe, index: number) => (
+                <RecipeCard 
+                  key={index} 
+                  recipe={recipe} 
+                  isSaved={savedRecipes.some(
+                    saved => saved.recipe_name === recipe.recipe_name
+                  )} 
+                />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.center}>
+              <Text style={styles.title}>Recipes</Text> 
+              <Text style={styles.subtitle}>Search for recipes above</Text>
+            </View>
+          )
+          
         )}
       </ScrollView>
     </SafeAreaView>
