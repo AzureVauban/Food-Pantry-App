@@ -30,22 +30,28 @@ const MySearch = ({ onSearchResults }: MySearchProps) => {
     }
   };
 
+  
+
   return (
     <View style={styles.container}>
-      <Searchbar
-        style={styles.looks}
-        placeholder="Search recipes"
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-      />
-      <Button 
-        mode="contained"
-        onPress={handleSearch}
-        loading={loading}
-        style={styles.button}
-      >
-        Search
-      </Button>
+      <View style={styles.searchContainer}>
+        <View style={styles.inputContainer}>
+          <Searchbar
+            style={styles.looks}
+            placeholder="Search recipes"
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+          />
+        </View>
+        <Button 
+          mode="contained"
+          onPress={handleSearch}
+          loading={loading}
+          style={styles.button}
+        >
+          Search
+        </Button>
+      </View>
     </View>
   );
 };
@@ -54,13 +60,22 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  inputContainer: {
+    flex: 1,
+  },
   looks: {
     borderRadius: 0,
     borderColor: 'black',
-    marginBottom: 10,
+    margin: 0,
   },
   button: {
-    marginTop: 5,
+    height: 40,
+    justifyContent: 'center',
   }
 });
 

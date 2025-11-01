@@ -72,5 +72,17 @@ import { StyleSheet} from 'react-native';
   nutritionText: {
     fontSize: 11,
     color: '#444',
-  }
+  },
+header: {
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+toggleButton: {
+    marginBottom: 10,
+    },
+saveButton: {
+    marginTop: 8,
+    width: '100%',
+    },
 });
