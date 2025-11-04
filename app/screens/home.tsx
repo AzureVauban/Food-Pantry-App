@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,9 @@ import {
   FlatList,
   Modal,
   TextInput,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, useRouter } from 'expo-router';
-import { createPantry, getPantries } from '@/utils/firestorePantry';
-import { getAuth,onAuthStateChanged,signOut} from 'firebase/auth';
-
+import { Link } from 'expo-router';
 
 type Pantry = {
   id: string;
@@ -21,63 +17,19 @@ type Pantry = {
 };
 
 export default function Home() {
-  // const userId = 'user_3fi4yhwj'; // Placeholder user ID for demonstration
+  const [pantries, setPantries] = useState<Pantry[]>([
+    { id: '1', name: 'Pantry 1' },
+  ]);
 
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [pantries, setPantries] = useState<Pantry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [newPantryName, setNewPantryName] = useState('');
-  const router = useRouter();
-  const auth = getAuth();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-        setUserName(user.displayName || 'User');
-      }else{
-        router.replace('/login');
-      }
-    });
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    async function fetchPantries() {
-      if (!userId) return;
-      try {
-        const fetched = await getPantries(userId);
-        setPantries(fetched);
-      } catch (err) {
-        console.error('Error fetching pantries:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPantries();
-  }, [userId]);
-
-  const addPantry = async () => {
-    if (!newPantryName.trim() || !userId) return;
-    try {
-      const pantryId = await createPantry(userId, newPantryName.trim());
-      setPantries([...pantries, { id: pantryId, name: newPantryName.trim() }]);
-      setNewPantryName('');
-      setModalVisible(false);
-    } catch (err) {
-      console.error('Error adding pantry:', err);
-    }
-  };
-
-  const handleLogout = () => {
-    try {
-      signOut(auth);
-      router.replace('/login');
-    } catch (err) {
-      console.error('Error signing out:', err);
-    }
+  const addPantry = () => {
+    if (!newPantryName.trim()) return;
+    const newId = String(Date.now());
+    setPantries([...pantries, { id: newId, name: newPantryName.trim() }]);
+    setNewPantryName('');
+    setModalVisible(false);
   };
 
   const renderPantry = ({ item }: { item: Pantry }) => (
@@ -98,9 +50,7 @@ export default function Home() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Your Pantries</Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#2563EB" style={{ marginTop: 40 }} />
-      ) : pantries.length === 0 ? (
+      {pantries.length === 0 ? (
         <Text style={styles.empty}>No pantries yet. Add one below!</Text>
       ) : (
         <FlatList
@@ -117,10 +67,8 @@ export default function Home() {
       >
         <Text style={styles.addButtonText}>➕ Add Pantry</Text>
       </TouchableOpacity>
-
-      {/* Add Pantry Modal */}
       <Modal
-        transparent
+        transparent={true}
         visible={modalVisible}
         animationType="slide"
         onRequestClose={() => setModalVisible(false)}
@@ -174,6 +122,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   addButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
