@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { Button, Modal, Portal } from 'react-native-paper';
+import { colors } from '../../constants/colors';
 import { styles } from '../../constants/recipedetail-color';
-import { Button } from 'react-native-paper';
 
 interface IRecipeDetails {
   recipe: {
@@ -18,31 +19,22 @@ interface IRecipeDetails {
     preparation_time_min?: number;
     cooking_time_min?: number;
     rating?: number;
-    recipe_types?: {
-      recipe_type: string | string[];
-    };
-    serving: {
-      serving_size: string;
-      // ...existing serving properties...
-    };
-    ingredients: {
-      ingredient: {
-        food_id: number;
-        food_name: string;
-        ingredient_description: string;
-        ingredient_url: string;
-        serving_id: number;
-        number_of_units: number;
-        measurement_description: string;
-      }[];
-    };
-    directions?: {
-      direction: {
-        direction_number: number;
-        direction_description: string;
-      }[];
-    };
+    recipe_types?: { recipe_type: string | string[] };
+    serving: { serving_size: string };
+    ingredients: { ingredient: { ingredient_description: string }[] };
+    directions?: { direction: { direction_number: number; direction_description: string }[] | { direction_number: number; direction_description: string } };
   };
+}
+
+interface GroceryItemType {
+  name: string;
+  quantity: number;
+  purchased: boolean;
+}
+
+interface GroceryListType {
+  title: string;
+  items: GroceryItemType[];
 }
 
 export default function RecipeDetails() {
@@ -50,8 +42,13 @@ export default function RecipeDetails() {
   const [recipe, setRecipe] = useState<IRecipeDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lists, setLists] = useState<GroceryListType[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedListIndex, setSelectedListIndex] = useState<number | null>(null);
+
   const router = useRouter();
 
+  // Load recipe details
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       try {
@@ -66,39 +63,64 @@ export default function RecipeDetails() {
         setLoading(false);
       }
     };
-
     fetchRecipeDetails();
   }, [recipeId]);
 
-  if (loading) {
-    return (
-      <View>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  // Load grocery lists from localStorage
+  useEffect(() => {
+    const storedLists = localStorage.getItem('groceryLists');
+    if (storedLists) setLists(JSON.parse(storedLists));
+  }, []);
 
-  if (error || !recipe) {
-    return (
-      <View>
-        <Text>{error || 'Recipe not found'}</Text>
-      </View>
-    );
-  }
+  const saveListsToStorage = (updatedLists: GroceryListType[]) => {
+    localStorage.setItem('groceryLists', JSON.stringify(updatedLists));
+    setLists(updatedLists);
+  };
+
+  const addIngredientsToList = () => {
+    if (selectedListIndex === null || !recipe) return;
+
+    const updatedLists = [...lists];
+    const targetList = updatedLists[selectedListIndex];
+
+    recipe.recipe.ingredients.ingredient.forEach((item) => {
+      if (!targetList.items.some((i) => i.name === item.ingredient_description)) {
+        targetList.items.push({ name: item.ingredient_description, quantity: 1, purchased: false });
+      }
+    });
+
+    saveListsToStorage(updatedLists);
+    setModalVisible(false);
+    alert(`Ingredients added to "${targetList.title}"`);
+  };
+
+  if (loading) return <ActivityIndicator size="large" />;
+
+  if (error || !recipe) return <Text>{error || 'Recipe not found'}</Text>;
+
+  // Ensure directions is always an array
+  const directionsArray =
+    recipe.recipe.directions?.direction
+      ? Array.isArray(recipe.recipe.directions.direction)
+        ? recipe.recipe.directions.direction
+        : [recipe.recipe.directions.direction]
+      : [];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.dark.primary }}>
+      <View style={{ padding: 12, backgroundColor: colors.dark.vibrantAccent }}>
         <Button
           mode="contained"
           onPress={() => router.replace('/screens/recipes')}
-          style={styles.backButton}
+          buttonColor={colors.dark.vibrantAccent}
+          labelStyle={{ color: 'white', fontWeight: 'bold' }}
         >
           Back to Recipes
         </Button>
       </View>
+
       <ScrollView>
-        {recipe?.recipe?.recipe_image && (
+        {recipe.recipe.recipe_image && (
           <Image
             source={{ uri: recipe.recipe.recipe_image }}
             style={styles.image}
@@ -117,26 +139,86 @@ export default function RecipeDetails() {
                 • {item.ingredient_description}
               </Text>
             ))}
+
+            <Button
+              mode="contained"
+              onPress={() => setModalVisible(true)}
+              style={{ marginTop: 10, backgroundColor: colors.dark.vibrantAccent }}
+              labelStyle={{ color: 'white' }}
+            >
+              Add to List
+            </Button>
           </View>
 
           {/* Directions */}
-          {recipe.recipe.directions?.direction && (
+          {directionsArray.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Directions</Text>
-              {recipe.recipe.directions.direction.map((step) => (
+              {directionsArray.map((step) => (
                 <View key={step.direction_number} style={styles.directionItem}>
-                  <Text style={styles.directionNumber}>
-                    {step.direction_number}.
-                  </Text>
-                  <Text style={styles.directionText}>
-                    {step.direction_description}
-                  </Text>
+                  <Text style={styles.directionNumber}>{step.direction_number}.</Text>
+                  <Text style={styles.directionText}>{step.direction_description}</Text>
                 </View>
               ))}
             </View>
           )}
         </View>
       </ScrollView>
+
+      {/* Modal for selecting grocery list */}
+      <Portal>
+        <Modal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          contentContainerStyle={{
+            backgroundColor: colors.dark.background,
+            padding: 20,
+            margin: 20,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ fontSize: 18, marginBottom: 12, color: colors.dark.vibrantAccent }}>
+            Select a list to add ingredients
+          </Text>
+          {lists.map((list, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => setSelectedListIndex(index)}
+              style={{
+                padding: 10,
+                backgroundColor: selectedListIndex === index ? colors.dark.vibrantAccent : '#ccc',
+                marginVertical: 4,
+                borderRadius: 8,
+              }}
+            >
+              <Text
+                style={{
+                  color: selectedListIndex === index ? 'white' : 'black',
+                  fontWeight: '600',
+                }}
+              >
+                {list.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <Button
+            mode="contained"
+            onPress={addIngredientsToList}
+            style={{ marginTop: 12, backgroundColor: colors.dark.vibrantAccent }}
+            labelStyle={{ color: 'white' }}
+          >
+            Add Ingredients
+          </Button>
+          <Button
+            mode="outlined"
+            onPress={() => setModalVisible(false)}
+            style={{ marginTop: 8, borderColor: colors.dark.vibrantAccent }}
+            labelStyle={{ color: colors.dark.vibrantAccent }}
+          >
+            Cancel
+          </Button>
+        </Modal>
+      </Portal>
     </SafeAreaView>
   );
 }
