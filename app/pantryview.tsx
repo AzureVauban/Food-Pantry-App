@@ -44,22 +44,20 @@ export default function PantryScreen() {
 
  const functions = getFunctions(app);
  const searchFoods = httpsCallable(functions, 'searchFoods');
+ const getfooddetails = httpsCallable(functions, 'getFoodDetails');
 
   const onChangeSearch = (text: string) => {
     setNewItemName(text);
 
-    // cancel previous debounce
     if (searchDebounceRef.current) {
       clearTimeout(searchDebounceRef.current);
     }
 
-    // clear results for short queries
     if (text.length < 3) {
       setSearchResults([]);
       return;
     }
 
-    // debounce the network call
     searchDebounceRef.current = window.setTimeout(() => {
       handleSearchFood(text);
     }, 300);
@@ -142,7 +140,7 @@ const handleSearchFood = async (query: string) => {
 
     console.log('Search API result:', response.data);
 
-    // FatSecret returns `data.foods.food`
+    
     const data: any = await response.data;
     const results = data.foods?.food ?? [];
 
@@ -156,12 +154,17 @@ const handleSearchFood = async (query: string) => {
 
 const handleSelectFood = async (foodId: string) => {
   try {
-    const res = await fetch(`${DETAILS_URL}?food_id=${foodId}`);
-    const details = await res.json();
+    const response = await getfooddetails({ foodId });
 
-    setNewItemName(details.food_name || '');
-    // Try to find serving text, calories, etc.
-    const serving = details.servings?.serving?.[0];
+    console.log('Food details result:', response.data);
+
+    const details = response.data as any;
+    setNewItemName(details.food?.food_name || '');
+
+    const serving = Array.isArray(details.food?.servings?.serving)
+      ? details.food.servings.serving[0]
+      : details.food?.servings?.serving;
+
     const quantityText = serving
       ? `${serving.serving_description || '1 serving'} (${serving.calories || '?'} kcal)`
       : '1';
