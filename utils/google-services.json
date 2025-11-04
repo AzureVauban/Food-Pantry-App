@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "941431420769",
+    "project_id": "food-pan-94155",
+    "storage_bucket": "food-pan-94155.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941431420769:android:10421a04f45ffb9f613720",
+        "android_client_info": {
+          "package_name": "com.michaelelderazurevauban.FoodPantryApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1ynbCihWD5xXAHZLzZO2wCxFLHGcfDB0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
