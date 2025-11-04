@@ -18,7 +18,7 @@ import {
   inMemoryPersistence,
   User,
 } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
+import { auth } from '../utils/firebaseConfig';
 import { useRouter } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -109,7 +109,7 @@ export default function LoginScreen() {
           )}
           <Text>{user.email}</Text>
           <Button title="Logout" onPress={handleLogout} />
-          <Button title="Go to Home" onPress={() => router.replace('/')} />
+          <Button title="Go to Home" onPress={() => router.replace('/screens/home')} />
         </>
       )}
     </View>
