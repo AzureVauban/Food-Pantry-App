@@ -1,23 +1,30 @@
-const BASE_URL = "https://searchfoodshttp-ahr...-uc.a.run.app"; // Replace with your function URL
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import app from '@/utils/firebaseConfig';
 
-export async function searchFoods(query: string) {
+const functions = getFunctions(app);
+const searchFoodsFn = httpsCallable(functions, 'searchFoods');
+const getFoodDetailsFn = httpsCallable(functions, 'getFoodDetails');
+
+export async function fetchFoods(query: string) {
   try {
-    const res = await fetch(`${BASE_URL}?query=${encodeURIComponent(query)}`);
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-    return await res.json();
+    const response = await searchFoodsFn({
+      searchTerm: query,
+      pageNumber: 0,
+      maxResults: 20,
+    });
+    return response.data;
   } catch (err) {
-    console.error("Error fetching foods:", err);
+    console.error('Error fetching foods:', err);
     throw err;
   }
 }
 
-export async function getFoodDetails(foodId: string) {
+export async function fetchFoodDetails(foodId: string) {
   try {
-    const res = await fetch(`https://getfooddetails-ahr...-uc.a.run.app?food_id=${foodId}`);
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-    return await res.json();
+    const response = await getFoodDetailsFn({ foodId });
+    return response.data;
   } catch (err) {
-    console.error("Error fetching food details:", err);
+    console.error('Error fetching food details:', err);
     throw err;
   }
 }

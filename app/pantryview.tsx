@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { getPantryItems, addPantryItem, deletePantryItem, editPantryItem } from '@/utils/firestorePantry';
 import { getAuth,onAuthStateChanged } from 'firebase/auth';
-const SEARCH_URL = 'https://searchfoodshttp-ahrruxhnza-uc.a.run.app';
-//const SEARCH_URL = 'https://searchfoods-ahrruxhnza-uc.a.run.app';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import  app  from '@/utils/firebaseConfig';
+//const SEARCH_URL = 'https://searchfoodshttp-ahrruxhnza-uc.a.run.app';
+const SEARCH_URL = 'https://searchfoods-ahrruxhnza-uc.a.run.app';
 const DETAILS_URL = 'https://getfooddetails-ahrruxhnza-uc.a.run.app';
 
 type Item = {
@@ -25,7 +27,7 @@ type Item = {
 
 export default function PantryScreen() {
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
-
+  const searchDebounceRef = useRef<number | null>(null);
   //const userId = 'user_3fi4yhwj';
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -40,6 +42,36 @@ export default function PantryScreen() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
+ const functions = getFunctions(app);
+ const searchFoods = httpsCallable(functions, 'searchFoods');
+
+  const onChangeSearch = (text: string) => {
+    setNewItemName(text);
+
+    // cancel previous debounce
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+
+    // clear results for short queries
+    if (text.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+
+    // debounce the network call
+    searchDebounceRef.current = window.setTimeout(() => {
+      handleSearchFood(text);
+    }, 300);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, [])
   
   useEffect(() => {
   const auth = getAuth();
@@ -102,9 +134,19 @@ const handleSearchFood = async (query: string) => {
 
   setSearchLoading(true);
   try {
-    const res = await fetch(`${SEARCH_URL}?query=${encodeURIComponent(query)}`);
-    const data = await res.json();
-    setSearchResults(data.foods || []);
+    const response = await searchFoods({
+      searchTerm: query,
+      pageNumber: 0,
+      maxResults: 20,
+    });
+
+    console.log('Search API result:', response.data);
+
+    // FatSecret returns `data.foods.food`
+    const data: any = await response.data;
+    const results = data.foods?.food ?? [];
+
+    setSearchResults(Array.isArray(results) ? results : [results]);
   } catch (err) {
     console.error('Error searching foods:', err);
   } finally {
@@ -183,12 +225,9 @@ const handleDeletedItem = async (itemId: string) => {
         <FlatList data={items} renderItem={renderItem} keyExtractor={(item) => item.id } />
       )}
 
-      {/* 🔹 Add Item Button */}
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.addButtonText}>➕ Add Item</Text>
       </TouchableOpacity>
-
-      {/* 🔹 Add Item Modal */}
       <Modal
         transparent={true}
         visible={modalVisible}
@@ -203,7 +242,8 @@ const handleDeletedItem = async (itemId: string) => {
               style={styles.input}
               placeholder="Search Food"
               value={newItemName}
-              onChangeText={handleSearchFood}
+              //onChangeText={setNewItemName}
+              onChangeText={onChangeSearch}
             />
             {searchLoading && (
               <ActivityIndicator size="small" color="#6B7280" style={{ marginVertical: 10 }} />
@@ -211,7 +251,8 @@ const handleDeletedItem = async (itemId: string) => {
             <FlatList
               style = {{ maxHeight: 200}}
               data={searchResults}
-              keyExtractor={(item) => item.food_id}
+              //keyExtractor={(item) => item.food_id}
+              keyExtractor={(item) => String(item.food_id ?? item.id ?? '')}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.searchItem}
