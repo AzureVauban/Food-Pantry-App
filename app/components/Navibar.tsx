@@ -126,7 +126,7 @@ export default function Navibar() {
                 textAlign: 'center',
               }}
             >
-              Grocery
+              Grocery Lists
             </Text>
           </Link>
           <Link
