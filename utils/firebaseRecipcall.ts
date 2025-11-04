@@ -17,3 +17,15 @@ export const searchRecipesCall = async (params: RecipeSearchParams) => {
     throw error;
   }
 };
+
+export const getRecipeDetails = async (recipeId: string) => {
+  try {
+    const functions = getFunctions();
+    const getRecipeDetails = httpsCallable(functions, 'getRecipeDetails');
+    const result = await getRecipeDetails({ recipeId });
+    return result.data;
+  } catch (error) {
+    console.error('Error getting recipe details:', error);
+    throw error;
+  }
+};
