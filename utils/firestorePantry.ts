@@ -6,6 +6,7 @@ import {
   serverTimestamp,
   setDoc,
   getDocs,
+  deleteDoc,
 } from 'firebase/firestore';
 import { PantryItem } from '../types/pantry';
 
@@ -37,7 +38,7 @@ export async function addPantryItem(
 
   const itemDoc = await addDoc(itemsRef, {
     name: item.name,
-    quantity: item.quantity,
+    quantity: String(item.quantity),
     //expirationDate: item.expirationDate ? item.expirationDate : null,
     category: item.category ?? null,
     imageUrl: item.imageUrl ?? null,
@@ -57,8 +58,10 @@ export async function addPantryItem(
 
   return items;
 }
-
-  import { deleteDoc } from 'firebase/firestore';
+  export async function deletePantry(userId: string, pantryId: string) {
+    const pantryRef = doc(db, 'users', userId, 'pantries', pantryId);
+    await deleteDoc(pantryRef);
+  }
   
   export async function editPantryItem(
     userId: string,

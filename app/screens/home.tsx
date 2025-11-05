@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
-import { createPantry, getPantries } from '@/utils/firestorePantry';
+import { createPantry, deletePantry, getPantries } from '@/utils/firestorePantry';
 import { getAuth,onAuthStateChanged,signOut} from 'firebase/auth';
 
 
@@ -79,8 +79,18 @@ export default function Home() {
       console.error('Error signing out:', err);
     }
   };
+  
+    const handleDeletedPantry = async (pantryId: string) => {
+    if (!userId){
+       return;
+    }
+    await deletePantry(userId, pantryId);
+    setPantries(pantries.filter((p) => p.id !== pantryId));
+  };
+
 
   const renderPantry = ({ item }: { item: Pantry }) => (
+  <View style={styles.pantryCardContainer}>
     <Link
       href={{
         pathname: '/pantryview',
@@ -92,7 +102,16 @@ export default function Home() {
         <Text style={styles.pantryText}>{item.name}</Text>
       </TouchableOpacity>
     </Link>
-  );
+
+    <TouchableOpacity
+      style={styles.deleteButton}
+      onPress={() => handleDeletedPantry(item.id)}
+    >
+      <Text style={styles.deleteButtonText}>Delete</Text>
+    </TouchableOpacity>
+  </View>
+);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -205,4 +224,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   modalButtonText: { color: '#fff', fontWeight: '600' },
+  pantryCardContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  backgroundColor: '#F3F4F6',
+  padding: 16,
+  borderRadius: 12,
+  marginBottom: 12,
+},
+deleteButton: {
+  marginLeft: 10,
+  padding: 8,
+},
+deleteButtonText: {
+  fontSize: 18,
+},
+
 });

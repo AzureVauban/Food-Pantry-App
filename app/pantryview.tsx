@@ -24,6 +24,7 @@ type Item = {
   name: string;
   quantity: string;
 };
+//
 
 export default function PantryScreen() {
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
