@@ -34,29 +34,27 @@ async function getAccessToken() {
 
   try {
     const credentials = Buffer.from(
-      `${FATSECRET_CONFIG.clientId}:${FATSECRET_CONFIG.clientSecret}`,
+      `${FATSECRET_CONFIG.clientId}:${FATSECRET_CONFIG.clientSecret}`
     ).toString('base64');
 
     const response = await fetch(FATSECRET_CONFIG.tokenUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${credentials}`,
+        'Authorization': `Basic ${credentials}`,
       },
       body: 'grant_type=client_credentials&scope=basic',
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(
-        `Token request failed: ${errorData.error_description || errorData.error}`,
-      );
+      throw new Error(`Token request failed: ${errorData.error_description || errorData.error}`);
     }
 
     const data = await response.json();
 
     accessToken = data.access_token;
-    tokenExpiry = Date.now() + data.expires_in * 1000 - 60000; // refresh 1 min early
+    tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000; // refresh 1 min early
 
     return accessToken;
   } catch (error) {
@@ -79,16 +77,13 @@ async function fatSecretRequest(method, params = {}) {
       ...params,
     });
 
-    const response = await fetch(
-      `${FATSECRET_CONFIG.apiUrl}?${requestParams}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+    const response = await fetch(`${FATSECRET_CONFIG.apiUrl}?${requestParams}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-    );
+    });
 
     const data = await response.json();
 
@@ -119,7 +114,7 @@ exports.searchFoods = functions.https.onCall(async (data, context) => {
     if (!searchTerm) {
       throw new functions.https.HttpsError(
         'invalid-argument',
-        'searchTerm is required',
+        'searchTerm is required'
       );
     }
 
@@ -148,7 +143,7 @@ exports.getFoodDetails = functions.https.onCall(async (data, context) => {
     if (!foodId) {
       throw new functions.https.HttpsError(
         'invalid-argument',
-        'foodId is required',
+        'foodId is required'
       );
     }
 
@@ -175,7 +170,7 @@ exports.searchRecipes = functions.https.onCall(async (data, context) => {
     if (!searchTerm) {
       throw new functions.https.HttpsError(
         'invalid-argument',
-        'searchTerm is required',
+        'searchTerm is required'
       );
     }
 
@@ -204,7 +199,7 @@ exports.getRecipeDetails = functions.https.onCall(async (data, context) => {
     if (!recipeId) {
       throw new functions.https.HttpsError(
         'invalid-argument',
-        'recipeId is required',
+        'recipeId is required'
       );
     }
 
@@ -224,26 +219,24 @@ exports.getRecipeDetails = functions.https.onCall(async (data, context) => {
  * Usage: POST https://your-project.cloudfunctions.net/getAutocompleteSuggestions
  * Body: { "searchTerm": "app" }
  */
-exports.getAutocompleteSuggestions = functions.https.onCall(
-  async (data, context) => {
-    try {
-      const { searchTerm } = data;
+exports.getAutocompleteSuggestions = functions.https.onCall(async (data, context) => {
+  try {
+    const { searchTerm } = data;
 
-      if (!searchTerm) {
-        throw new functions.https.HttpsError(
-          'invalid-argument',
-          'searchTerm is required',
-        );
-      }
-
-      const result = await fatSecretRequest('foods.autocomplete', {
-        expression: searchTerm,
-      });
-
-      return result;
-    } catch (error) {
-      console.error('Error getting autocomplete suggestions:', error);
-      throw new functions.https.HttpsError('internal', error.message);
+    if (!searchTerm) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'searchTerm is required'
+      );
     }
-  },
-);
+
+    const result = await fatSecretRequest('foods.autocomplete', {
+      expression: searchTerm,
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error getting autocomplete suggestions:', error);
+    throw new functions.https.HttpsError('internal', error.message);
+  }
+});

@@ -10,8 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.michaelelderazurevauban.FoodPantryApp",
-      "googleServicesFile": "./utils/GoogleService-Info.plist"
+  "bundleIdentifier": "com.michaelelderazurevauban.FoodPantryApp",
+  "googleServicesFile": "./utils/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,8 +19,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.michaelelderazurevauban.FoodPantryApp",
-      "googleServicesFile": "./utils/google-services.json"
+  "package": "com.michaelelderazurevauban.FoodPantryApp",
+  "googleServicesFile": "./utils/google-services.json"
     },
     "web": {
       "bundler": "metro",
