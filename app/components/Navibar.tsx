@@ -1,11 +1,14 @@
-import { Link, Tabs } from 'expo-router';
-import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Platform, View } from 'react-native';
-import { colors } from '../../constants/colors';
+import { Link, Tabs, useRouter } from "expo-router";
+import React from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { Text, Platform, View, Pressable } from "react-native";
+import { colors } from "../../constants/colors";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase/firebaseConfig";
+
 export default function Navibar() {
-  if (Platform.OS !== 'web') {
-    console.log('[NAVIBAR] Rendering Navibar for Mobile');
+  // ----- Mobile: bottom tabs -----
+  if (Platform.OS !== "web") {
     return (
       <Tabs
         screenOptions={{
@@ -18,7 +21,7 @@ export default function Navibar() {
         <Tabs.Screen
           name="home"
           options={{
-            title: 'Pantry',
+            title: "Pantry",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="cube" size={size} color={color} />
             ),
@@ -27,7 +30,7 @@ export default function Navibar() {
         <Tabs.Screen
           name="grocery"
           options={{
-            title: 'Grocery',
+            title: "Grocery",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="basket" size={size} color={color} />
             ),
@@ -36,7 +39,7 @@ export default function Navibar() {
         <Tabs.Screen
           name="recipes"
           options={{
-            title: 'recipes',
+            title: "recipes",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="logo-buffer" size={size} color={color} />
             ),
@@ -45,7 +48,7 @@ export default function Navibar() {
         <Tabs.Screen
           name="settings"
           options={{
-            title: 'settings',
+            title: "settings",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="settings" size={size} color={color} />
             ),
@@ -55,28 +58,39 @@ export default function Navibar() {
     );
   }
 
-  // Web platform - Vertical sidebar navigation
+  // ----- Web: vertical sidebar -----
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);        // end Firebase session
+      router.replace("/login");   // single redirect target
+    } catch (e) {
+      console.error("logout error", e);
+    }
+  };
+
   return (
-    <View style={{ flexDirection: 'row', flex: 1 }}>
-      {/* Vertical Navigation Sidebar */}
+    <View style={{ flexDirection: "row", flex: 1 }}>
+      {/* Sidebar */}
       <View
         style={{
-          width: '20%',
+          width: "20%",
           backgroundColor: colors.dark.background,
           paddingVertical: 16,
           borderRightWidth: 1,
-          borderRightColor: colors.dark.primary + '20',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
+          borderRightColor: colors.dark.primary + "20",
+          justifyContent: "flex-start",
+          alignItems: "center",
         }}
       >
-        {/* App Logo/Title */}
-        <View style={{ marginBottom: 32, alignItems: 'center' }}>
+        {/* Brand */}
+        <View style={{ marginBottom: 32, alignItems: "center" }}>
           <Text
             style={{
               color: colors.dark.vibrantAccent,
               fontSize: 12,
-              fontWeight: 'bold',
+              fontWeight: "bold",
               marginTop: 4,
             }}
           >
@@ -84,16 +98,11 @@ export default function Navibar() {
           </Text>
         </View>
 
-        {/* Navigation Links */}
+        {/* Nav Links */}
         <View style={{ gap: 24 }}>
           <Link
             href="/screens/home"
-            style={{
-              alignItems: 'center',
-              textDecorationLine: 'none',
-              padding: 8,
-              borderRadius: 8,
-            }}
+            style={{ alignItems: "center", padding: 8, borderRadius: 8 }}
           >
             <Ionicons name="cube" size={24} color={colors.dark.primary} />
             <Text
@@ -101,7 +110,7 @@ export default function Navibar() {
                 color: colors.dark.primary,
                 marginTop: 4,
                 fontSize: 24,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               Pantry
@@ -110,12 +119,7 @@ export default function Navibar() {
 
           <Link
             href="/screens/grocery"
-            style={{
-              alignItems: 'center',
-              textDecorationLine: 'none',
-              padding: 8,
-              borderRadius: 8,
-            }}
+            style={{ alignItems: "center", padding: 8, borderRadius: 8 }}
           >
             <Ionicons name="basket" size={24} color={colors.dark.primary} />
             <Text
@@ -123,45 +127,33 @@ export default function Navibar() {
                 color: colors.dark.primary,
                 marginTop: 4,
                 fontSize: 24,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               Grocery
             </Text>
           </Link>
+
           <Link
             href="/screens/recipes"
-            style={{
-              alignItems: 'center',
-              textDecorationLine: 'none',
-              padding: 8,
-              borderRadius: 8,
-            }}
+            style={{ alignItems: "center", padding: 8, borderRadius: 8 }}
           >
-            <Ionicons
-              name="logo-buffer"
-              size={24}
-              color={colors.dark.primary}
-            />
+            <Ionicons name="logo-buffer" size={24} color={colors.dark.primary} />
             <Text
               style={{
                 color: colors.dark.primary,
                 marginTop: 4,
                 fontSize: 24,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               Recipes
             </Text>
           </Link>
+
           <Link
             href="/screens/settings"
-            style={{
-              alignItems: 'center',
-              textDecorationLine: 'none',
-              padding: 8,
-              borderRadius: 8,
-            }}
+            style={{ alignItems: "center", padding: 8, borderRadius: 8 }}
           >
             <Ionicons name="settings" size={24} color={colors.dark.primary} />
             <Text
@@ -169,21 +161,17 @@ export default function Navibar() {
                 color: colors.dark.primary,
                 marginTop: 4,
                 fontSize: 24,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               Settings
             </Text>
           </Link>
 
-          <Link
-            href="../login"
-            style={{
-              alignItems: 'center',
-              textDecorationLine: 'none',
-              padding: 8,
-              borderRadius: 8,
-            }}
+          {/* Logout button (NOT a Link) */}
+          <Pressable
+            onPress={handleLogout}
+            style={{ alignItems: "center", padding: 8, borderRadius: 8 }}
           >
             <Ionicons name="push" size={24} color={colors.dark.primary} />
             <Text
@@ -191,22 +179,21 @@ export default function Navibar() {
                 color: colors.dark.primary,
                 marginTop: 4,
                 fontSize: 24,
-                textAlign: 'center',
+                textAlign: "center",
               }}
             >
               Log out
             </Text>
-          </Link>
+          </Pressable>
         </View>
       </View>
 
-      {/* Main Content Area */}
+      {/* Content area (tabs hidden on web) */}
       <View style={{ flex: 1 }}>
-        {/* This is where your screen content will render */}
         <Tabs
           screenOptions={{
             headerShown: false,
-            tabBarStyle: { display: 'none' },
+            tabBarStyle: { display: "none" },
           }}
         >
           <Tabs.Screen name="home" />

@@ -7,7 +7,6 @@ import {
   Image,
   ActivityIndicator,
   Alert,
-  Platform,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
@@ -18,9 +17,8 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-
-import { auth, persistenceReady } from "../firebase/firebaseConfig";
 import { useRouter } from "expo-router";
+import { auth, persistenceReady } from "../firebase/firebaseConfig";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -29,34 +27,30 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Expo / AuthSession (works on native and can work on web via redirect)
+  // Expo AuthSession Google
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com",
   });
 
-  // Make sure persistence is set up (browserLocalPersistence on web, inMemoryPersistence otherwise)
+  // Ensure persistence is ready (web => local, native => memory)
   useEffect(() => {
     persistenceReady.finally(() => {
+      // no-op; just ensure it ran before we try to sign in
       console.log("[login] persistence ready");
     });
   }, []);
 
-  // Listen for auth state changes (fires on mount, refresh, login, logout)
+  // Track auth state for UI only (NO navigation here)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
-
-      if (firebaseUser) {
-        // user is logged in -> go to app home/dashboard route
-        router.replace("/screens/home");
-      }
     });
-    return unsubscribe;
-  }, [router]);
+    return unsub;
+  }, []);
 
-  // Handle the Google OAuth result from expo-auth-session
+  // Handle Google OAuth result and navigate on successful sign-in
   useEffect(() => {
     if (response?.type === "success") {
       const { id_token } = response.params;
@@ -65,7 +59,7 @@ export default function LoginScreen() {
       signInWithCredential(auth, credential)
         .then(() => {
           console.log("✅ Signed in successfully");
-          // onAuthStateChanged will redirect us
+          router.replace("/screens/home"); // navigate ONLY here
         })
         .catch((err) => {
           console.error("❌ Auth error:", err);
@@ -74,13 +68,12 @@ export default function LoginScreen() {
     } else if (response?.type === "error") {
       Alert.alert("Login Cancelled", "You cancelled the sign-in process.");
     }
-  }, [response]);
+  }, [response, router]);
 
-  // Logout
+  // Optional: local logout button for testing on this screen
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        console.log("✅ User signed out");
         setUser(null);
         router.replace("/login");
       })
@@ -107,9 +100,7 @@ export default function LoginScreen() {
           <Button
             disabled={!request}
             title="Sign in with Google"
-            onPress={() => {
-              promptAsync();
-            }}
+            onPress={() => promptAsync()}
           />
         </>
       ) : (
@@ -122,6 +113,8 @@ export default function LoginScreen() {
             />
           )}
           <Text>{user.email}</Text>
+
+          {/* useful during testing; optional to keep */}
           <Button title="Logout" onPress={handleLogout} />
           <Button
             title="Go to Home"
