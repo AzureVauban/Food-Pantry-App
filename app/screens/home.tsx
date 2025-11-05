@@ -63,6 +63,7 @@ export default function Home() {
     if (!newPantryName.trim() || !userId) return;
     try {
       const pantryId = await createPantry(userId, newPantryName.trim());
+      //console.log('New pantry ID:', pantryId);
       setPantries([...pantries, { id: pantryId, name: newPantryName.trim() }]);
       setNewPantryName('');
       setModalVisible(false);
