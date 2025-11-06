@@ -14,13 +14,13 @@ const MySearch = ({ onSearchResults }: MySearchProps) => {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-    
+
     setLoading(true);
     try {
       const results = await searchRecipesCall({
         searchTerm: searchQuery,
         pageNumber: 0,
-        maxResults: 20
+        maxResults: 20,
       });
       onSearchResults(results);
     } catch (error) {
@@ -29,8 +29,6 @@ const MySearch = ({ onSearchResults }: MySearchProps) => {
       setLoading(false);
     }
   };
-
-  
 
   return (
     <View style={styles.container}>
@@ -43,7 +41,7 @@ const MySearch = ({ onSearchResults }: MySearchProps) => {
             value={searchQuery}
           />
         </View>
-        <Button 
+        <Button
           mode="contained"
           onPress={handleSearch}
           loading={loading}
@@ -76,7 +74,7 @@ const styles = StyleSheet.create({
   button: {
     height: 40,
     justifyContent: 'center',
-  }
+  },
 });
 
 export default MySearch;

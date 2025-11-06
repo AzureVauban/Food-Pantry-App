@@ -12,8 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { createPantry, getPantries } from '@/utils/firestorePantry';
-import { getAuth,onAuthStateChanged,signOut} from 'firebase/auth';
-
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 
 type Pantry = {
   id: string;
@@ -37,7 +36,7 @@ export default function Home() {
       if (user) {
         setUserId(user.uid);
         setUserName(user.displayName || 'User');
-      }else{
+      } else {
         router.replace('/login');
       }
     });
@@ -99,7 +98,11 @@ export default function Home() {
       <Text style={styles.title}>Your Pantries</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#2563EB" style={{ marginTop: 40 }} />
+        <ActivityIndicator
+          size="large"
+          color="#2563EB"
+          style={{ marginTop: 40 }}
+        />
       ) : pantries.length === 0 ? (
         <Text style={styles.empty}>No pantries yet. Add one below!</Text>
       ) : (

@@ -72,7 +72,7 @@ export default function RecipeDetails() {
 
   if (loading) {
     return (
-      <View >
+      <View>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -80,22 +80,21 @@ export default function RecipeDetails() {
 
   if (error || !recipe) {
     return (
-      <View >
+      <View>
         <Text>{error || 'Recipe not found'}</Text>
       </View>
     );
   }
 
   return (
-
     <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-        <Button 
-            mode="contained" 
-            onPress={() => router.replace('/screens/recipes')}
-            style={styles.backButton}
-            >
-            Back to Recipes
+      <View style={styles.header}>
+        <Button
+          mode="contained"
+          onPress={() => router.replace('/screens/recipes')}
+          style={styles.backButton}
+        >
+          Back to Recipes
         </Button>
       </View>
       <ScrollView>
@@ -126,8 +125,12 @@ export default function RecipeDetails() {
               <Text style={styles.sectionTitle}>Directions</Text>
               {recipe.recipe.directions.direction.map((step) => (
                 <View key={step.direction_number} style={styles.directionItem}>
-                  <Text style={styles.directionNumber}>{step.direction_number}.</Text>
-                  <Text style={styles.directionText}>{step.direction_description}</Text>
+                  <Text style={styles.directionNumber}>
+                    {step.direction_number}.
+                  </Text>
+                  <Text style={styles.directionText}>
+                    {step.direction_description}
+                  </Text>
                 </View>
               ))}
             </View>

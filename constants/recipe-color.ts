@@ -1,9 +1,9 @@
-import { StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
- export const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#fff' 
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
   resultsContainer: {
     flex: 1,
@@ -15,15 +15,15 @@ import { StyleSheet} from 'react-native';
     justifyContent: 'center',
     padding: 24,
   },
-  title: { 
-    fontSize: 28, 
-    fontWeight: '600' 
+  title: {
+    fontSize: 28,
+    fontWeight: '600',
   },
-  subtitle: { 
-    marginTop: 8, 
-    fontSize: 16 
+  subtitle: {
+    marginTop: 8,
+    fontSize: 16,
   },
- card: {
+  card: {
     backgroundColor: 'white',
     borderRadius: 12,
     marginBottom: 16,
@@ -73,16 +73,16 @@ import { StyleSheet} from 'react-native';
     fontSize: 11,
     color: '#444',
   },
-header: {
+  header: {
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-toggleButton: {
+  toggleButton: {
     marginBottom: 10,
-    },
-saveButton: {
+  },
+  saveButton: {
     marginTop: 8,
     width: '100%',
-    },
+  },
 });
