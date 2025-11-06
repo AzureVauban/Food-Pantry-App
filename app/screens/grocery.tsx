@@ -32,6 +32,13 @@ export default function Grocery() {
     setNewListTitle('');
   };
 
+  const deleteList = (index: number) => {
+    const updatedLists = [...lists];
+    updatedLists.splice(index, 1);
+    setLists(updatedLists);
+  };
+
+
   const addItem = () => {
     if (selectedListIndex === null || !newItemName.trim()) return;
     const updatedLists = [...lists];
@@ -142,16 +149,22 @@ export default function Grocery() {
 
         <View style={styles.grid}>
           {lists.map((list, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.listButton}
-              onPress={() => setSelectedListIndex(index)}
-            >
-              <Text style={styles.listButtonText}>{list.title}</Text>
-              <Text style={styles.listItemCount}>{list.items.length} items</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+            <View key={index} style={styles.listCard}>
+              <TouchableOpacity
+                style={{ flex: 1 }}
+                onPress={() => setSelectedListIndex(index)}
+              >
+                <Text style={styles.listButtonText}>{list.title}</Text>
+                <Text style={styles.listItemCount}>{list.items.length} items</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => deleteList(index)} style={styles.deleteButton}>
+                <Ionicons name="trash-outline" size={22} color={colors.dark.vibrantAccent} />
+              </TouchableOpacity>
+          </View>
+            ))}
+          </View>
+
       </SafeAreaView>
     );
   }
@@ -195,7 +208,6 @@ export default function Grocery() {
         <Text style={{ color: '#fff', fontWeight: '600' }}>Download PDF</Text>
       </TouchableOpacity>
 
-      {/* Hidden printable content */}
       <div style={{ display: 'none' }}>
         <GroceryPDFView ref={pdfRef} listTitle={selectedList.title} items={selectedList.items} />
       </div>
@@ -286,6 +298,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
+  },
+  listCard: {
+    width: '48%',
+    backgroundColor: colors.dark.primary + '20',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  deleteButton: {
+    padding: 4,
   },
 });
 
