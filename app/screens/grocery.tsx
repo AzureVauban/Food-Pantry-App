@@ -21,7 +21,9 @@ type GroceryListType = { title: string; items: GroceryItemType[] };
 
 export default function Grocery() {
   const [lists, setLists] = useState<GroceryListType[]>([]);
-  const [selectedListIndex, setSelectedListIndex] = useState<number | null>(null);
+  const [selectedListIndex, setSelectedListIndex] = useState<number | null>(
+    null,
+  );
   const [newListTitle, setNewListTitle] = useState('');
   const [newItemName, setNewItemName] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -81,50 +83,95 @@ export default function Grocery() {
 
   const startEditing = (index: number) => {
     setEditingIndex(index);
-    setEditingName(selectedListIndex !== null ? lists[selectedListIndex].items[index].name : '');
+    setEditingName(
+      selectedListIndex !== null
+        ? lists[selectedListIndex].items[index].name
+        : '',
+    );
   };
 
   const saveEdit = () => {
     if (selectedListIndex === null || editingIndex === null) return;
     const updatedLists = [...lists];
-    updatedLists[selectedListIndex].items[editingIndex].name = editingName.trim();
+    updatedLists[selectedListIndex].items[editingIndex].name =
+      editingName.trim();
     setLists(updatedLists);
     setEditingIndex(null);
     setEditingName('');
   };
 
-  const renderItem = ({ item, index }: { item: GroceryItemType; index: number }) => (
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: GroceryItemType;
+    index: number;
+  }) => (
     <View style={styles.itemContainer}>
-      <TouchableOpacity onPress={() => togglePurchased(index)} style={styles.checkbox}>
-        <View style={[styles.checkboxInner, item.purchased && styles.checkboxChecked]} />
+      <TouchableOpacity
+        onPress={() => togglePurchased(index)}
+        style={styles.checkbox}
+      >
+        <View
+          style={[
+            styles.checkboxInner,
+            item.purchased && styles.checkboxChecked,
+          ]}
+        />
       </TouchableOpacity>
 
       {editingIndex === index ? (
         <TextInput
           value={editingName}
           onChangeText={setEditingName}
-          style={[styles.itemText, { flex: 1, borderBottomWidth: 1, borderColor: colors.dark.vibrantAccent }]}
+          style={[
+            styles.itemText,
+            {
+              flex: 1,
+              borderBottomWidth: 1,
+              borderColor: colors.dark.vibrantAccent,
+            },
+          ]}
           onSubmitEditing={saveEdit}
           autoFocus
         />
       ) : (
-        <TouchableOpacity onLongPress={() => startEditing(index)} style={{ flex: 1 }}>
-          <Text style={[styles.itemText, item.purchased && styles.itemPurchased]}>{item.name}</Text>
+        <TouchableOpacity
+          onLongPress={() => startEditing(index)}
+          style={{ flex: 1 }}
+        >
+          <Text
+            style={[styles.itemText, item.purchased && styles.itemPurchased]}
+          >
+            {item.name}
+          </Text>
         </TouchableOpacity>
       )}
 
       <View style={styles.quantityContainer}>
         <TouchableOpacity onPress={() => adjustQuantity(index, -1)}>
-          <Ionicons name="remove-circle-outline" size={24} color={colors.dark.vibrantAccent} />
+          <Ionicons
+            name="remove-circle-outline"
+            size={24}
+            color={colors.dark.vibrantAccent}
+          />
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity onPress={() => adjustQuantity(index, 1)}>
-          <Ionicons name="add-circle-outline" size={24} color={colors.dark.vibrantAccent} />
+          <Ionicons
+            name="add-circle-outline"
+            size={24}
+            color={colors.dark.vibrantAccent}
+          />
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity onPress={() => removeItem(index)}>
-        <Ionicons name="trash-outline" size={24} color={colors.dark.vibrantAccent} />
+        <Ionicons
+          name="trash-outline"
+          size={24}
+          color={colors.dark.vibrantAccent}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -142,12 +189,18 @@ export default function Grocery() {
             style={styles.input}
           />
           <TouchableOpacity onPress={addList} style={styles.addButton}>
-            <Ionicons name="add-circle-outline" size={28} color={colors.dark.vibrantAccent} />
+            <Ionicons
+              name="add-circle-outline"
+              size={28}
+              color={colors.dark.vibrantAccent}
+            />
           </TouchableOpacity>
         </View>
 
         {lists.length === 0 ? (
-          <Text style={styles.emptyText}>No lists yet. Add a list to get started!</Text>
+          <Text style={styles.emptyText}>
+            No lists yet. Add a list to get started!
+          </Text>
         ) : (
           <View style={styles.grid}>
             {lists.map((list, index) => (
@@ -157,7 +210,9 @@ export default function Grocery() {
                 onPress={() => setSelectedListIndex(index)}
               >
                 <Text style={styles.listButtonText}>{list.title}</Text>
-                <Text style={styles.listItemCount}>{list.items.length} items</Text>
+                <Text style={styles.listItemCount}>
+                  {list.items.length} items
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -167,12 +222,17 @@ export default function Grocery() {
   }
 
   const selectedList = lists[selectedListIndex];
-  const remainingItems = selectedList.items.filter(item => !item.purchased).length;
+  const remainingItems = selectedList.items.filter(
+    (item) => !item.purchased,
+  ).length;
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={() => setSelectedListIndex(null)} style={styles.backButtonTop}>
+        <TouchableOpacity
+          onPress={() => setSelectedListIndex(null)}
+          style={styles.backButtonTop}
+        >
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.itemCounter}>{remainingItems} items left</Text>
@@ -189,12 +249,18 @@ export default function Grocery() {
           style={styles.input}
         />
         <TouchableOpacity onPress={addItem} style={styles.addButton}>
-          <Ionicons name="add-circle-outline" size={28} color={colors.dark.vibrantAccent} />
+          <Ionicons
+            name="add-circle-outline"
+            size={28}
+            color={colors.dark.vibrantAccent}
+          />
         </TouchableOpacity>
       </View>
 
       {selectedList.items.length === 0 ? (
-        <Text style={styles.emptyText}>Your list is empty. Add items above!</Text>
+        <Text style={styles.emptyText}>
+          Your list is empty. Add items above!
+        </Text>
       ) : (
         <FlatList
           data={selectedList.items}
@@ -209,7 +275,12 @@ export default function Grocery() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ffffff', padding: 16 },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   backButtonTop: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -222,8 +293,18 @@ const styles = StyleSheet.create({
     color: colors.dark.vibrantAccent,
     fontWeight: '600',
   },
-  title: { fontSize: 32, fontWeight: '700', color: colors.dark.vibrantAccent, textAlign: 'center', marginBottom: 16 },
-  itemCounter: { color: colors.dark.vibrantAccent, fontSize: 16, fontWeight: '600' },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.dark.vibrantAccent,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  itemCounter: {
+    color: colors.dark.vibrantAccent,
+    fontSize: 16,
+    fontWeight: '600',
+  },
   inputRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'center' },
   input: {
     flex: 1,
@@ -236,7 +317,11 @@ const styles = StyleSheet.create({
     color: colors.dark.vibrantAccent,
   },
   addButton: { padding: 4 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   listButton: {
     width: '48%',
     backgroundColor: colors.dark.primary + '20',
@@ -245,7 +330,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
   },
-  listButtonText: { fontSize: 20, color: colors.dark.vibrantAccent, marginBottom: 4 },
+  listButtonText: {
+    fontSize: 20,
+    color: colors.dark.vibrantAccent,
+    marginBottom: 4,
+  },
   listItemCount: { fontSize: 14, color: colors.dark.vibrantAccent + '80' },
   itemContainer: {
     flexDirection: 'row',
@@ -270,9 +359,24 @@ const styles = StyleSheet.create({
   checkboxInner: { width: 16, height: 16, backgroundColor: 'transparent' },
   checkboxChecked: { backgroundColor: colors.dark.vibrantAccent },
   itemText: { flex: 1, fontSize: 18, color: colors.dark.vibrantAccent },
-  itemPurchased: { textDecorationLine: 'line-through', color: colors.dark.vibrantAccent + '80' },
-  quantityContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 12 },
-  quantityText: { marginHorizontal: 8, fontSize: 16, color: colors.dark.vibrantAccent },
-  emptyText: { textAlign: 'center', color: colors.dark.vibrantAccent + '80', marginTop: 32, fontSize: 16 },
+  itemPurchased: {
+    textDecorationLine: 'line-through',
+    color: colors.dark.vibrantAccent + '80',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  quantityText: {
+    marginHorizontal: 8,
+    fontSize: 16,
+    color: colors.dark.vibrantAccent,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: colors.dark.vibrantAccent + '80',
+    marginTop: 32,
+    fontSize: 16,
+  },
 });
-
