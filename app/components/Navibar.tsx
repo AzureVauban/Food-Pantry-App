@@ -7,6 +7,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/firebaseConfig';
 
 export default function Navibar() {
+  const router = useRouter();
   // ----- Mobile: bottom tabs -----
   if (Platform.OS !== 'web') {
     return (
@@ -59,7 +60,6 @@ export default function Navibar() {
   }
 
   // ----- Web: vertical sidebar -----
-  const router = useRouter();
 
   const handleLogout = async () => {
     try {
