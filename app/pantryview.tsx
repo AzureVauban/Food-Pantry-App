@@ -110,11 +110,11 @@ export default function PantryScreen() {
   const handleAddItem = async () => {
     if (!newItemName.trim() || !newItemQuantity.trim() || !userId) return;
 
-  try {
-    const itemData = {
-      name: newItemName.trim(),
-      quantity: newItemQuantity.trim(),
-    };
+    try {
+      const itemData = {
+        name: newItemName.trim(),
+        quantity: newItemQuantity.trim(),
+      };
 
       const newId = await addPantryItem(userId, id, itemData);
       setItems([

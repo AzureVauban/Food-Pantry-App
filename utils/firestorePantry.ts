@@ -67,20 +67,28 @@ export async function getPantryItems(
 
   return items;
 }
-  export async function deletePantry(userId: string, pantryId: string) {
-    const pantryRef = doc(db, 'users', userId, 'pantries', pantryId);
-    await deleteDoc(pantryRef);
-  }
-  
-  export async function editPantryItem(
-    userId: string,
-    pantryId: string,
-    itemId: string,
-    updateData: Partial<PantryItem>,
-  ) {
-    const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
-    await setDoc(itemRef, updateData, { merge: true }); 
-  }
+export async function deletePantry(userId: string, pantryId: string) {
+  const pantryRef = doc(db, 'users', userId, 'pantries', pantryId);
+  await deleteDoc(pantryRef);
+}
+
+export async function editPantryItem(
+  userId: string,
+  pantryId: string,
+  itemId: string,
+  updateData: Partial<PantryItem>,
+) {
+  const itemRef = doc(
+    db,
+    'users',
+    userId,
+    'pantries',
+    pantryId,
+    'items',
+    itemId,
+  );
+  await setDoc(itemRef, updateData, { merge: true });
+}
 
 export async function deletePantryItem(
   userId: string,
