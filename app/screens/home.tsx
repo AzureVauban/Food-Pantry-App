@@ -19,6 +19,7 @@ type Pantry = {
 export default function Home() {
   const [pantries, setPantries] = useState<Pantry[]>([
     { id: '1', name: 'Pantry 1' },
+    { id: '1', name: 'Pantry 1' },
   ]);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,8 +27,10 @@ export default function Home() {
 
   const addPantry = () => {
     if (!newPantryName.trim()) return;
+    if (!newPantryName.trim()) return;
     const newId = String(Date.now());
     setPantries([...pantries, { id: newId, name: newPantryName.trim() }]);
+    setNewPantryName('');
     setNewPantryName('');
     setModalVisible(false);
   };
@@ -35,7 +38,7 @@ export default function Home() {
   const renderPantry = ({ item }: { item: Pantry }) => (
     <Link
       href={{
-        pathname: '/pantryview',
+        pathname: '/screens/pantry',
         params: { id: item.id, name: item.name },
       }}
       asChild

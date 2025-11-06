@@ -133,7 +133,6 @@ export default function Navibar() {
               Grocery
             </Text>
           </Link>
-
           <Link
             href="/screens/recipes"
             style={{ alignItems: 'center', padding: 8, borderRadius: 8 }}
