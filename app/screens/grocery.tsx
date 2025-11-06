@@ -1,11 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
-import GroceryPDFView from './groceryPDFView';
 
-type GroceryItemType = { name: string; quantity: number; purchased: boolean };
+type GroceryItemType = {
+  name: string;
+  quantity: number;
+  purchased: boolean;
+};
+
 type GroceryListType = { title: string; items: GroceryItemType[] };
 
 export default function Grocery() {
@@ -13,7 +24,8 @@ export default function Grocery() {
   const [selectedListIndex, setSelectedListIndex] = useState<number | null>(null);
   const [newListTitle, setNewListTitle] = useState('');
   const [newItemName, setNewItemName] = useState('');
-  const pdfRef = useRef<HTMLDivElement>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -32,17 +44,14 @@ export default function Grocery() {
     setNewListTitle('');
   };
 
-  const deleteList = (index: number) => {
-    const updatedLists = [...lists];
-    updatedLists.splice(index, 1);
-    setLists(updatedLists);
-  };
-
-
   const addItem = () => {
     if (selectedListIndex === null || !newItemName.trim()) return;
     const updatedLists = [...lists];
-    updatedLists[selectedListIndex].items.push({ name: newItemName.trim(), quantity: 1, purchased: false });
+    updatedLists[selectedListIndex].items.push({
+      name: newItemName.trim(),
+      quantity: 1,
+      purchased: false,
+    });
     setLists(updatedLists);
     setNewItemName('');
   };
@@ -70,50 +79,40 @@ export default function Grocery() {
     setLists(updatedLists);
   };
 
-// --- Generate printable view ---
-  const downloadPDF = () => {
-    if (selectedListIndex === null) return;
-    const printable = pdfRef.current?.outerHTML;
-    if (!printable) return;
+  const startEditing = (index: number) => {
+    setEditingIndex(index);
+    setEditingName(selectedListIndex !== null ? lists[selectedListIndex].items[index].name : '');
+  };
 
-  const newWin = window.open('', '_blank');
-  if (!newWin) return;
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <title>Grocery List</title>
-        <style>
-          body { margin: 20px; font-family: sans-serif; color: ${colors.dark.vibrantAccent}; }
-          h1 { text-align: center; color: ${colors.dark.vibrantAccent}; }
-          li { margin: 4px 0; display: flex; justify-content: space-between; }
-          .quantity { color: green; font-weight: bold; margin-left: 8px; }
-          @page { margin: 0; } /* remove headers/footers in browsers that support it */
-        </style>
-      </head>
-      <body>
-        ${printable}
-      </body>
-    </html>
-  `;
-
-  newWin.document.open();
-  newWin.document.write(html);
-  newWin.document.close();
-  newWin.focus();
-  newWin.print();
-};
-
-
+  const saveEdit = () => {
+    if (selectedListIndex === null || editingIndex === null) return;
+    const updatedLists = [...lists];
+    updatedLists[selectedListIndex].items[editingIndex].name = editingName.trim();
+    setLists(updatedLists);
+    setEditingIndex(null);
+    setEditingName('');
+  };
 
   const renderItem = ({ item, index }: { item: GroceryItemType; index: number }) => (
     <View style={styles.itemContainer}>
       <TouchableOpacity onPress={() => togglePurchased(index)} style={styles.checkbox}>
         <View style={[styles.checkboxInner, item.purchased && styles.checkboxChecked]} />
       </TouchableOpacity>
-      <Text style={[styles.itemText, item.purchased && styles.itemPurchased]}>{item.name}</Text>
+
+      {editingIndex === index ? (
+        <TextInput
+          value={editingName}
+          onChangeText={setEditingName}
+          style={[styles.itemText, { flex: 1, borderBottomWidth: 1, borderColor: colors.dark.vibrantAccent }]}
+          onSubmitEditing={saveEdit}
+          autoFocus
+        />
+      ) : (
+        <TouchableOpacity onLongPress={() => startEditing(index)} style={{ flex: 1 }}>
+          <Text style={[styles.itemText, item.purchased && styles.itemPurchased]}>{item.name}</Text>
+        </TouchableOpacity>
+      )}
+
       <View style={styles.quantityContainer}>
         <TouchableOpacity onPress={() => adjustQuantity(index, -1)}>
           <Ionicons name="remove-circle-outline" size={24} color={colors.dark.vibrantAccent} />
@@ -123,16 +122,16 @@ export default function Grocery() {
           <Ionicons name="add-circle-outline" size={24} color={colors.dark.vibrantAccent} />
         </TouchableOpacity>
       </View>
+
       <TouchableOpacity onPress={() => removeItem(index)}>
         <Ionicons name="trash-outline" size={24} color={colors.dark.vibrantAccent} />
       </TouchableOpacity>
     </View>
   );
 
-  // --- All Lists View ---
   if (selectedListIndex === null) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: '#fff' }]}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.title}>My Grocery Lists</Text>
         <View style={styles.inputRow}>
           <TextInput
@@ -147,36 +146,33 @@ export default function Grocery() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.grid}>
-          {lists.map((list, index) => (
-            <View key={index} style={styles.listCard}>
+        {lists.length === 0 ? (
+          <Text style={styles.emptyText}>No lists yet. Add a list to get started!</Text>
+        ) : (
+          <View style={styles.grid}>
+            {lists.map((list, index) => (
               <TouchableOpacity
-                style={{ flex: 1 }}
+                key={index}
+                style={styles.listButton}
                 onPress={() => setSelectedListIndex(index)}
               >
                 <Text style={styles.listButtonText}>{list.title}</Text>
                 <Text style={styles.listItemCount}>{list.items.length} items</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => deleteList(index)} style={styles.deleteButton}>
-                <Ionicons name="trash-outline" size={22} color={colors.dark.vibrantAccent} />
-              </TouchableOpacity>
-          </View>
             ))}
           </View>
-
+        )}
       </SafeAreaView>
     );
   }
 
-  // --- Single List View ---
   const selectedList = lists[selectedListIndex];
   const remainingItems = selectedList.items.filter(item => !item.purchased).length;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: '#fff' }]}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={() => setSelectedListIndex(null)} style={styles.backButton}>
+        <TouchableOpacity onPress={() => setSelectedListIndex(null)} style={styles.backButtonTop}>
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.itemCounter}>{remainingItems} items left</Text>
@@ -197,39 +193,37 @@ export default function Grocery() {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={selectedList.items}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
-
-      <TouchableOpacity onPress={downloadPDF} style={styles.pdfButton}>
-        <Text style={{ color: '#fff', fontWeight: '600' }}>Download PDF</Text>
-      </TouchableOpacity>
-
-      <div style={{ display: 'none' }}>
-        <GroceryPDFView ref={pdfRef} listTitle={selectedList.title} items={selectedList.items} />
-      </div>
+      {selectedList.items.length === 0 ? (
+        <Text style={styles.emptyText}>Your list is empty. Add items above!</Text>
+      ) : (
+        <FlatList
+          data={selectedList.items}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
+  container: { flex: 1, backgroundColor: '#ffffff', padding: 16 },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  backButtonTop: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.dark.vibrantAccent,
+    backgroundColor: '#fff',
+  },
+  backButtonText: {
     color: colors.dark.vibrantAccent,
-    textAlign: 'center',
-    marginBottom: 16,
+    fontWeight: '600',
   },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
+  title: { fontSize: 32, fontWeight: '700', color: colors.dark.vibrantAccent, textAlign: 'center', marginBottom: 16 },
+  itemCounter: { color: colors.dark.vibrantAccent, fontSize: 16, fontWeight: '600' },
   inputRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'center' },
   input: {
     flex: 1,
@@ -279,38 +273,6 @@ const styles = StyleSheet.create({
   itemPurchased: { textDecorationLine: 'line-through', color: colors.dark.vibrantAccent + '80' },
   quantityContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 12 },
   quantityText: { marginHorizontal: 8, fontSize: 16, color: colors.dark.vibrantAccent },
-  backButton: {
-    borderWidth: 1,
-    borderColor: colors.dark.vibrantAccent,
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  backButtonText: {
-    color: colors.dark.vibrantAccent,
-    fontWeight: '600',
-  },
-  itemCounter: { fontSize: 16, color: colors.dark.vibrantAccent },
-  pdfButton: {
-    alignSelf: 'center',
-    marginTop: 16,
-    backgroundColor: colors.dark.vibrantAccent,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  listCard: {
-    width: '48%',
-    backgroundColor: colors.dark.primary + '20',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-  },
-  deleteButton: {
-    padding: 4,
-  },
+  emptyText: { textAlign: 'center', color: colors.dark.vibrantAccent + '80', marginTop: 32, fontSize: 16 },
 });
 
