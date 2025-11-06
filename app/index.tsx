@@ -1,9 +1,9 @@
 // app/index.tsx
-import React, { useEffect, useState } from "react";
-import { View, Text, Button, Image } from "react-native";
-import { Link } from "expo-router";
-import { auth } from "../firebase/firebaseConfig";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, Image } from 'react-native';
+import { Link } from 'expo-router';
+import { auth } from '../firebase/firebaseConfig';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 
 export default function HomeScreen() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,7 +20,7 @@ export default function HomeScreen() {
   if (!authResolved) {
     // Wait for Firebase to confirm user session on page load
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Loading...</Text>
       </View>
     );
@@ -29,8 +29,15 @@ export default function HomeScreen() {
   if (user) {
     // ✅ User is signed in (persists after refresh)
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 12 }}>
-        <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 10 }}>
           Welcome to Food Inventory App
         </Text>
 
@@ -47,8 +54,8 @@ export default function HomeScreen() {
         )}
 
         <Text style={{ fontSize: 16, marginBottom: 10 }}>
-          Signed in as:{" "}
-          <Text style={{ fontWeight: "600" }}>
+          Signed in as:{' '}
+          <Text style={{ fontWeight: '600' }}>
             {user.displayName || user.email}
           </Text>
         </Text>
@@ -59,9 +66,9 @@ export default function HomeScreen() {
           onPress={async () => {
             try {
               await signOut(auth);
-              console.log("User signed out successfully");
+              console.log('User signed out successfully');
             } catch (error) {
-              console.error("Error signing out:", error);
+              console.error('Error signing out:', error);
             }
           }}
         />
@@ -71,8 +78,15 @@ export default function HomeScreen() {
 
   // 🔒 Fallback: not signed in (shouldn't show if persistence works)
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 12 }}>
-      <Text style={{ fontSize: 22, fontWeight: "bold" }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 12,
+      }}
+    >
+      <Text style={{ fontSize: 22, fontWeight: 'bold' }}>
         Welcome to Food Inventory App
       </Text>
 

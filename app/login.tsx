@@ -1,5 +1,5 @@
 // app/login.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   View,
@@ -7,18 +7,18 @@ import {
   Image,
   ActivityIndicator,
   Alert,
-} from "react-native";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
+} from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 import {
   GoogleAuthProvider,
   signInWithCredential,
   onAuthStateChanged,
   signOut,
   User,
-} from "firebase/auth";
-import { useRouter } from "expo-router";
-import { auth, persistenceReady } from "../firebase/firebaseConfig";
+} from 'firebase/auth';
+import { useRouter } from 'expo-router';
+import { auth, persistenceReady } from '../firebase/firebaseConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,14 +30,14 @@ export default function LoginScreen() {
   // Expo AuthSession Google
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
-      "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com",
+      '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
   });
 
   // Ensure persistence is ready (web => local, native => memory)
   useEffect(() => {
     persistenceReady.finally(() => {
       // no-op; just ensure it ran before we try to sign in
-      console.log("[login] persistence ready");
+      console.log('[login] persistence ready');
     });
   }, []);
 
@@ -52,21 +52,21 @@ export default function LoginScreen() {
 
   // Handle Google OAuth result and navigate on successful sign-in
   useEffect(() => {
-    if (response?.type === "success") {
+    if (response?.type === 'success') {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
 
       signInWithCredential(auth, credential)
         .then(() => {
-          console.log("✅ Signed in successfully");
-          router.replace("/screens/home"); // navigate ONLY here
+          console.log('✅ Signed in successfully');
+          router.replace('/screens/home'); // navigate ONLY here
         })
         .catch((err) => {
-          console.error("❌ Auth error:", err);
-          Alert.alert("Login Error", err.message || "Failed to sign in");
+          console.error('❌ Auth error:', err);
+          Alert.alert('Login Error', err.message || 'Failed to sign in');
         });
-    } else if (response?.type === "error") {
-      Alert.alert("Login Cancelled", "You cancelled the sign-in process.");
+    } else if (response?.type === 'error') {
+      Alert.alert('Login Cancelled', 'You cancelled the sign-in process.');
     }
   }, [response, router]);
 
@@ -75,17 +75,17 @@ export default function LoginScreen() {
     signOut(auth)
       .then(() => {
         setUser(null);
-        router.replace("/login");
+        router.replace('/login');
       })
       .catch((err) => {
-        console.error("❌ Sign out error:", err);
-        Alert.alert("Logout Error", err.message || "Failed to sign out");
+        console.error('❌ Sign out error:', err);
+        Alert.alert('Logout Error', err.message || 'Failed to sign out');
       });
   };
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
         <Text>Loading session...</Text>
       </View>
@@ -93,7 +93,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       {!user ? (
         <>
           <Text>Login with Google</Text>
@@ -118,7 +118,7 @@ export default function LoginScreen() {
           <Button title="Logout" onPress={handleLogout} />
           <Button
             title="Go to Home"
-            onPress={() => router.replace("/screens/home")}
+            onPress={() => router.replace('/screens/home')}
           />
         </>
       )}
