@@ -9,7 +9,6 @@ import {
 } from 'firebase/firestore';
 import { PantryItem } from '../types/pantry';
 
-
 export async function createUser(userId: string, name: string, email: string) {
   const userDocRef = doc(db, 'users', userId);
   await setDoc(userDocRef, { name, email });
@@ -46,8 +45,18 @@ export async function addPantryItem(
 
   return itemDoc.id; // itemId
 }
- export async function getPantryItems(userId: string, pantryId: string): Promise<PantryItem[]> {
-  const itemsRef = collection(db, 'users', userId, 'pantries', pantryId, 'items');
+export async function getPantryItems(
+  userId: string,
+  pantryId: string,
+): Promise<PantryItem[]> {
+  const itemsRef = collection(
+    db,
+    'users',
+    userId,
+    'pantries',
+    pantryId,
+    'items',
+  );
   const snapshot = await getDocs(itemsRef);
 
   const items: PantryItem[] = snapshot.docs.map((doc) => ({
@@ -58,26 +67,42 @@ export async function addPantryItem(
   return items;
 }
 
-  import { deleteDoc } from 'firebase/firestore';
-  
-  export async function editPantryItem(
-    userId: string,
-    pantryId: string,
-    itemId: string,
-    updateData: Partial<PantryItem>,
-  ) {
-    const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
-    await setDoc(itemRef, updateData, { merge: true }); 
-  }
+import { deleteDoc } from 'firebase/firestore';
 
-  export async function deletePantryItem(
-    userId: string,
-    pantryId: string,
-    itemId: string,
-  ) {
-    const itemRef = doc(db, 'users', userId, 'pantries', pantryId, 'items', itemId);
-    await deleteDoc(itemRef);
-  }
+export async function editPantryItem(
+  userId: string,
+  pantryId: string,
+  itemId: string,
+  updateData: Partial<PantryItem>,
+) {
+  const itemRef = doc(
+    db,
+    'users',
+    userId,
+    'pantries',
+    pantryId,
+    'items',
+    itemId,
+  );
+  await setDoc(itemRef, updateData, { merge: true });
+}
+
+export async function deletePantryItem(
+  userId: string,
+  pantryId: string,
+  itemId: string,
+) {
+  const itemRef = doc(
+    db,
+    'users',
+    userId,
+    'pantries',
+    pantryId,
+    'items',
+    itemId,
+  );
+  await deleteDoc(itemRef);
+}
 
 //   export async function getPantries(userId: string)
 // : Promise<{ id: string; name: string }[]> {
@@ -93,9 +118,8 @@ export async function addPantryItem(
 export async function getPantries(userId: string) {
   const pantriesRef = collection(doc(db, 'users', userId), 'pantries');
   const snapshot = await getDocs(pantriesRef);
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
     name: doc.data().name,
   }));
 }
-
