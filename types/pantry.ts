@@ -7,7 +7,7 @@ export interface Pantry {
 export interface PantryItem {
   id: string;
   name: string;
-  quantity: number;
+  quantity: string;
   expirationDate?: Date;
   category?: string;
   imageUrl?: string;
