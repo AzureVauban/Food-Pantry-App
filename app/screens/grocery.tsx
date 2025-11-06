@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
 import GroceryPDFView from './groceryPDFView';
@@ -40,11 +47,14 @@ export default function Grocery() {
     setLists(updatedLists);
   };
 
-
   const addItem = () => {
     if (selectedListIndex === null || !newItemName.trim()) return;
     const updatedLists = [...lists];
-    updatedLists[selectedListIndex].items.push({ name: newItemName.trim(), quantity: 1, purchased: false });
+    updatedLists[selectedListIndex].items.push({
+      name: newItemName.trim(),
+      quantity: 1,
+      purchased: false,
+    });
     setLists(updatedLists);
     setNewItemName('');
   };
@@ -72,16 +82,16 @@ export default function Grocery() {
     setLists(updatedLists);
   };
 
-// --- Generate printable view ---
+  // --- Generate printable view ---
   const downloadPDF = () => {
     if (selectedListIndex === null) return;
     const printable = pdfRef.current?.outerHTML;
     if (!printable) return;
 
-  const newWin = window.open('', '_blank');
-  if (!newWin) return;
+    const newWin = window.open('', '_blank');
+    if (!newWin) return;
 
-  const html = `
+    const html = `
     <!DOCTYPE html>
     <html lang="en">
       <head>
@@ -101,14 +111,12 @@ export default function Grocery() {
     </html>
   `;
 
-  newWin.document.open();
-  newWin.document.write(html);
-  newWin.document.close();
-  newWin.focus();
-  newWin.print();
-};
-
-
+    newWin.document.open();
+    newWin.document.write(html);
+    newWin.document.close();
+    newWin.focus();
+    newWin.print();
+  };
 
   const renderItem = ({
     item,
@@ -129,7 +137,9 @@ export default function Grocery() {
           ]}
         />
       </TouchableOpacity>
-      <Text style={[styles.itemText, item.purchased && styles.itemPurchased]}>{item.name}</Text>
+      <Text style={[styles.itemText, item.purchased && styles.itemPurchased]}>
+        {item.name}
+      </Text>
       <View style={styles.quantityContainer}>
         <TouchableOpacity onPress={() => adjustQuantity(index, -1)}>
           <Ionicons
@@ -187,16 +197,24 @@ export default function Grocery() {
                 onPress={() => setSelectedListIndex(index)}
               >
                 <Text style={styles.listButtonText}>{list.title}</Text>
-                <Text style={styles.listItemCount}>{list.items.length} items</Text>
+                <Text style={styles.listItemCount}>
+                  {list.items.length} items
+                </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => deleteList(index)} style={styles.deleteButton}>
-                <Ionicons name="trash-outline" size={22} color={colors.dark.vibrantAccent} />
+              <TouchableOpacity
+                onPress={() => deleteList(index)}
+                style={styles.deleteButton}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={22}
+                  color={colors.dark.vibrantAccent}
+                />
               </TouchableOpacity>
-          </View>
-            ))}
-          </View>
-
+            </View>
+          ))}
+        </View>
       </SafeAreaView>
     );
   }
@@ -210,7 +228,10 @@ export default function Grocery() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: '#fff' }]}>
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={() => setSelectedListIndex(null)} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => setSelectedListIndex(null)}
+          style={styles.backButton}
+        >
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.itemCounter}>{remainingItems} items left</Text>
@@ -247,7 +268,11 @@ export default function Grocery() {
       </TouchableOpacity>
 
       <div style={{ display: 'none' }}>
-        <GroceryPDFView ref={pdfRef} listTitle={selectedList.title} items={selectedList.items} />
+        <GroceryPDFView
+          ref={pdfRef}
+          listTitle={selectedList.title}
+          items={selectedList.items}
+        />
       </div>
     </SafeAreaView>
   );
@@ -322,9 +347,20 @@ const styles = StyleSheet.create({
   checkboxInner: { width: 16, height: 16, backgroundColor: 'transparent' },
   checkboxChecked: { backgroundColor: colors.dark.vibrantAccent },
   itemText: { flex: 1, fontSize: 18, color: colors.dark.vibrantAccent },
-  itemPurchased: { textDecorationLine: 'line-through', color: colors.dark.vibrantAccent + '80' },
-  quantityContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 12 },
-  quantityText: { marginHorizontal: 8, fontSize: 16, color: colors.dark.vibrantAccent },
+  itemPurchased: {
+    textDecorationLine: 'line-through',
+    color: colors.dark.vibrantAccent + '80',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  quantityText: {
+    marginHorizontal: 8,
+    fontSize: 16,
+    color: colors.dark.vibrantAccent,
+  },
   backButton: {
     borderWidth: 1,
     borderColor: colors.dark.vibrantAccent,
