@@ -37,11 +37,20 @@ const GroceryPDFView = forwardRef<HTMLDivElement, GroceryPDFViewProps>(
                 fontSize: '16px',
               }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span
+                style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+              >
                 <input type="checkbox" checked={item.purchased} readOnly />
                 {item.name}
               </span>
-              <span style={{ color: 'green', fontWeight: 'bold', minWidth: '20px', textAlign: 'right' }}>
+              <span
+                style={{
+                  color: 'green',
+                  fontWeight: 'bold',
+                  minWidth: '20px',
+                  textAlign: 'right',
+                }}
+              >
                 {item.quantity}
               </span>
             </li>
@@ -49,8 +58,7 @@ const GroceryPDFView = forwardRef<HTMLDivElement, GroceryPDFViewProps>(
         </ul>
       </div>
     );
-  }
+  },
 );
 
 export default GroceryPDFView;
-
