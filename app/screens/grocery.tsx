@@ -10,7 +10,9 @@ type GroceryListType = { title: string; items: GroceryItemType[] };
 
 export default function Grocery() {
   const [lists, setLists] = useState<GroceryListType[]>([]);
-  const [selectedListIndex, setSelectedListIndex] = useState<number | null>(null);
+  const [selectedListIndex, setSelectedListIndex] = useState<number | null>(
+    null,
+  );
   const [newListTitle, setNewListTitle] = useState('');
   const [newItemName, setNewItemName] = useState('');
   const pdfRef = useRef<HTMLDivElement>(null);
@@ -108,23 +110,49 @@ export default function Grocery() {
 
 
 
-  const renderItem = ({ item, index }: { item: GroceryItemType; index: number }) => (
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: GroceryItemType;
+    index: number;
+  }) => (
     <View style={styles.itemContainer}>
-      <TouchableOpacity onPress={() => togglePurchased(index)} style={styles.checkbox}>
-        <View style={[styles.checkboxInner, item.purchased && styles.checkboxChecked]} />
+      <TouchableOpacity
+        onPress={() => togglePurchased(index)}
+        style={styles.checkbox}
+      >
+        <View
+          style={[
+            styles.checkboxInner,
+            item.purchased && styles.checkboxChecked,
+          ]}
+        />
       </TouchableOpacity>
       <Text style={[styles.itemText, item.purchased && styles.itemPurchased]}>{item.name}</Text>
       <View style={styles.quantityContainer}>
         <TouchableOpacity onPress={() => adjustQuantity(index, -1)}>
-          <Ionicons name="remove-circle-outline" size={24} color={colors.dark.vibrantAccent} />
+          <Ionicons
+            name="remove-circle-outline"
+            size={24}
+            color={colors.dark.vibrantAccent}
+          />
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity onPress={() => adjustQuantity(index, 1)}>
-          <Ionicons name="add-circle-outline" size={24} color={colors.dark.vibrantAccent} />
+          <Ionicons
+            name="add-circle-outline"
+            size={24}
+            color={colors.dark.vibrantAccent}
+          />
         </TouchableOpacity>
       </View>
       <TouchableOpacity onPress={() => removeItem(index)}>
-        <Ionicons name="trash-outline" size={24} color={colors.dark.vibrantAccent} />
+        <Ionicons
+          name="trash-outline"
+          size={24}
+          color={colors.dark.vibrantAccent}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -143,7 +171,11 @@ export default function Grocery() {
             style={styles.input}
           />
           <TouchableOpacity onPress={addList} style={styles.addButton}>
-            <Ionicons name="add-circle-outline" size={28} color={colors.dark.vibrantAccent} />
+            <Ionicons
+              name="add-circle-outline"
+              size={28}
+              color={colors.dark.vibrantAccent}
+            />
           </TouchableOpacity>
         </View>
 
@@ -171,7 +203,9 @@ export default function Grocery() {
 
   // --- Single List View ---
   const selectedList = lists[selectedListIndex];
-  const remainingItems = selectedList.items.filter(item => !item.purchased).length;
+  const remainingItems = selectedList.items.filter(
+    (item) => !item.purchased,
+  ).length;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: '#fff' }]}>
@@ -193,7 +227,11 @@ export default function Grocery() {
           style={styles.input}
         />
         <TouchableOpacity onPress={addItem} style={styles.addButton}>
-          <Ionicons name="add-circle-outline" size={28} color={colors.dark.vibrantAccent} />
+          <Ionicons
+            name="add-circle-outline"
+            size={28}
+            color={colors.dark.vibrantAccent}
+          />
         </TouchableOpacity>
       </View>
 
@@ -242,7 +280,11 @@ const styles = StyleSheet.create({
     color: colors.dark.vibrantAccent,
   },
   addButton: { padding: 4 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   listButton: {
     width: '48%',
     backgroundColor: colors.dark.primary + '20',
@@ -251,7 +293,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
   },
-  listButtonText: { fontSize: 20, color: colors.dark.vibrantAccent, marginBottom: 4 },
+  listButtonText: {
+    fontSize: 20,
+    color: colors.dark.vibrantAccent,
+    marginBottom: 4,
+  },
   listItemCount: { fontSize: 14, color: colors.dark.vibrantAccent + '80' },
   itemContainer: {
     flexDirection: 'row',
