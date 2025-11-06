@@ -37,7 +37,7 @@ export default function Home() {
       if (user) {
         setUserId(user.uid);
         setUserName(user.displayName || 'User');
-      }else{
+      } else {
         router.replace('/login');
       }
     });
@@ -119,7 +119,11 @@ export default function Home() {
       <Text style={styles.title}>Your Pantries</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#2563EB" style={{ marginTop: 40 }} />
+        <ActivityIndicator
+          size="large"
+          color="#2563EB"
+          style={{ marginTop: 40 }}
+        />
       ) : pantries.length === 0 ? (
         <Text style={styles.empty}>No pantries yet. Add one below!</Text>
       ) : (

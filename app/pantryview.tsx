@@ -11,10 +11,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import { getPantryItems, addPantryItem, deletePantryItem, editPantryItem } from '@/utils/firestorePantry';
-import { getAuth,onAuthStateChanged } from 'firebase/auth';
+import {
+  getPantryItems,
+  addPantryItem,
+  deletePantryItem,
+  editPantryItem,
+} from '@/utils/firestorePantry';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import  app  from '@/utils/firebaseConfig';
+import app from '@/utils/firebaseConfig';
 //const SEARCH_URL = 'https://searchfoodshttp-ahrruxhnza-uc.a.run.app';
 const SEARCH_URL = 'https://searchfoods-ahrruxhnza-uc.a.run.app';
 const DETAILS_URL = 'https://getfooddetails-ahrruxhnza-uc.a.run.app';
@@ -43,9 +48,9 @@ export default function PantryScreen() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
- const functions = getFunctions(app);
- const searchFoods = httpsCallable(functions, 'searchFoods');
- const getfooddetails = httpsCallable(functions, 'getFoodDetails');
+  const functions = getFunctions(app);
+  const searchFoods = httpsCallable(functions, 'searchFoods');
+  const getfooddetails = httpsCallable(functions, 'getFoodDetails');
 
   const onChangeSearch = (text: string) => {
     setNewItemName(text);
@@ -62,7 +67,7 @@ export default function PantryScreen() {
     searchDebounceRef.current = window.setTimeout(() => {
       handleSearchFood(text);
     }, 300);
-  }
+  };
 
   useEffect(() => {
     return () => {
@@ -70,41 +75,40 @@ export default function PantryScreen() {
         clearTimeout(searchDebounceRef.current);
       }
     };
-  }, [])
-  
+  }, []);
+
   useEffect(() => {
-  const auth = getAuth();
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      setUserId(user.uid);
-      try {
-        const pantryItems = await getPantryItems(user.uid, id);
-        setItems(
-          pantryItems.map((item) => ({
-            id: item.id,
-            name: item.name,
-            quantity: String(item.quantity),
-          }))
-        );
-      } catch (err) {
-        console.error('Error fetching pantry items:', err);
-        setError('Failed to load pantry items');
-      } finally {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+        try {
+          const pantryItems = await getPantryItems(user.uid, id);
+          setItems(
+            pantryItems.map((item) => ({
+              id: item.id,
+              name: item.name,
+              quantity: String(item.quantity),
+            })),
+          );
+        } catch (err) {
+          console.error('Error fetching pantry items:', err);
+          setError('Failed to load pantry items');
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setUserId(null);
+        setItems([]);
         setLoading(false);
       }
-    } else {
-      setUserId(null);
-      setItems([]);
-      setLoading(false);
-    }
-  });
+    });
 
-  return () => unsubscribe();
-}, [id]);
-
+    return () => unsubscribe();
+  }, [id]);
 
   const handleAddItem = async () => {
-  if (!newItemName.trim() || !newItemQuantity.trim() || !userId) return;
+    if (!newItemName.trim() || !newItemQuantity.trim() || !userId) return;
 
   try {
     const itemData = {
@@ -112,78 +116,78 @@ export default function PantryScreen() {
       quantity: newItemQuantity.trim(),
     };
 
-    const newId = await addPantryItem(userId, id, itemData);
-    setItems([...items, { id: newId, ...itemData, quantity: String(itemData.quantity) }]);
-    
-    setModalVisible(false);
-    setNewItemName('');
-    setNewItemQuantity('');
-  } catch (err) {
-    console.error('Error adding pantry item:', err);
-    setError('Failed to add item');
-  }
-};
+      const newId = await addPantryItem(userId, id, itemData);
+      setItems([
+        ...items,
+        { id: newId, ...itemData, quantity: String(itemData.quantity) },
+      ]);
 
-const handleSearchFood = async (query: string) => {
-  setNewItemName(query);
-  if (query.length < 3) {
-    setSearchResults([]);
-    return;
-  }
+      setModalVisible(false);
+      setNewItemName('');
+      setNewItemQuantity('');
+    } catch (err) {
+      console.error('Error adding pantry item:', err);
+      setError('Failed to add item');
+    }
+  };
 
-  setSearchLoading(true);
-  try {
-    const response = await searchFoods({
-      searchTerm: query,
-      pageNumber: 0,
-      maxResults: 20,
-    });
+  const handleSearchFood = async (query: string) => {
+    setNewItemName(query);
+    if (query.length < 3) {
+      setSearchResults([]);
+      return;
+    }
 
-    console.log('Search API result:', response.data);
+    setSearchLoading(true);
+    try {
+      const response = await searchFoods({
+        searchTerm: query,
+        pageNumber: 0,
+        maxResults: 20,
+      });
 
-    
-    const data: any = await response.data;
-    const results = data.foods?.food ?? [];
+      console.log('Search API result:', response.data);
 
-    setSearchResults(Array.isArray(results) ? results : [results]);
-  } catch (err) {
-    console.error('Error searching foods:', err);
-  } finally {
-    setSearchLoading(false);
-  }
-};
+      const data: any = await response.data;
+      const results = data.foods?.food ?? [];
 
-const handleSelectFood = async (foodId: string) => {
-  try {
-    const response = await getfooddetails({ foodId });
+      setSearchResults(Array.isArray(results) ? results : [results]);
+    } catch (err) {
+      console.error('Error searching foods:', err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
-    console.log('Food details result:', response.data);
+  const handleSelectFood = async (foodId: string) => {
+    try {
+      const response = await getfooddetails({ foodId });
 
-    const details = response.data as any;
-    setNewItemName(details.food?.food_name || '');
+      console.log('Food details result:', response.data);
 
-    const serving = Array.isArray(details.food?.servings?.serving)
-      ? details.food.servings.serving[0]
-      : details.food?.servings?.serving;
+      const details = response.data as any;
+      setNewItemName(details.food?.food_name || '');
 
-    const quantityText = serving
-      ? `${serving.serving_description || '1 serving'} (${serving.calories || '?'} kcal)`
-      : '1';
-    setNewItemQuantity(quantityText);
+      const serving = Array.isArray(details.food?.servings?.serving)
+        ? details.food.servings.serving[0]
+        : details.food?.servings?.serving;
 
-    setSearchResults([]);
-  } catch (err) {
-    console.error('Error fetching food details:', err);
-  }
-};
+      const quantityText = serving
+        ? `${serving.serving_description || '1 serving'} (${serving.calories || '?'} kcal)`
+        : '1';
+      setNewItemQuantity(quantityText);
 
+      setSearchResults([]);
+    } catch (err) {
+      console.error('Error fetching food details:', err);
+    }
+  };
 
-const handleDeletedItem = async (itemId: string) => {
-  if(!userId) return;
-  await deletePantryItem(userId, id, itemId);
-  setItems(items.filter((item) => item.id !== itemId));
-}
-
+  const handleDeletedItem = async (itemId: string) => {
+    if (!userId) return;
+    await deletePantryItem(userId, id, itemId);
+    setItems(items.filter((item) => item.id !== itemId));
+  };
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.itemCard}>
@@ -198,7 +202,7 @@ const handleDeletedItem = async (itemId: string) => {
       <TouchableOpacity
         style={styles.editButton}
         onPress={() => {
-          if (!userId || !id){
+          if (!userId || !id) {
             console.warn('User ID or Pantry ID is missing');
             return;
           }
@@ -207,29 +211,39 @@ const handleDeletedItem = async (itemId: string) => {
             name: item.name,
             quantity: item.quantity,
           });
-          }}
-          >
-            <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
-            </View>
-            );
-  
+        }}
+      >
+        <Text style={styles.editButtonText}>Edit</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>{name}</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#6B7280" style={{ marginTop: 40 }} />
+        <ActivityIndicator
+          size="large"
+          color="#6B7280"
+          style={{ marginTop: 40 }}
+        />
       ) : error ? (
         <Text style={styles.empty}>{error}</Text>
       ) : items.length === 0 ? (
         <Text style={styles.empty}>This pantry is empty.</Text>
       ) : (
-        <FlatList data={items} renderItem={renderItem} keyExtractor={(item) => item.id } />
+        <FlatList
+          data={items}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
       )}
 
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={styles.addButtonText}>➕ Add Item</Text>
       </TouchableOpacity>
       <Modal
@@ -250,10 +264,14 @@ const handleDeletedItem = async (itemId: string) => {
               onChangeText={onChangeSearch}
             />
             {searchLoading && (
-              <ActivityIndicator size="small" color="#6B7280" style={{ marginVertical: 10 }} />
+              <ActivityIndicator
+                size="small"
+                color="#6B7280"
+                style={{ marginVertical: 10 }}
+              />
             )}
             <FlatList
-              style = {{ maxHeight: 200}}
+              style={{ maxHeight: 200 }}
               data={searchResults}
               //keyExtractor={(item) => item.food_id}
               keyExtractor={(item) => String(item.food_id ?? item.id ?? '')}
@@ -263,15 +281,18 @@ const handleDeletedItem = async (itemId: string) => {
                   onPress={() => handleSelectFood(item.food_id)}
                 >
                   <Text style={{ fontWeight: '600' }}>{item.food_name}</Text>
-                  {item.brand_name && <Text style={{ color: '#6B7280' }}>{item.brand_name}</Text>}
+                  {item.brand_name && (
+                    <Text style={{ color: '#6B7280' }}>{item.brand_name}</Text>
+                  )}
                   {item.food_description && (
                     <Text style={{ color: '#9CA3AF', fontSize: 12 }}>
-                      {item.food_description.split(' | ')[0]} {/* usually has "Calories: 89 kcal | Fat: 0.3g ..." */}
+                      {item.food_description.split(' | ')[0]}{' '}
+                      {/* usually has "Calories: 89 kcal | Fat: 0.3g ..." */}
                     </Text>
                   )}
                 </TouchableOpacity>
               )}
-/>
+            />
             <TextInput
               style={styles.input}
               placeholder="Quantity (e.g., 2 cans)"
@@ -347,20 +368,15 @@ const styles = StyleSheet.create({
   modalButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
   modalButtonText: { color: '#fff', fontWeight: '600' },
 
-  deleteButton: { marginLeft: 10, justifyContent: 'center'
-  },
-  deleteButtonText: { fontSize: 18 
-  },
+  deleteButton: { marginLeft: 10, justifyContent: 'center' },
+  deleteButtonText: { fontSize: 18 },
 
-  editButton: { marginLeft: 10, justifyContent: 'center'
-  },
-  editButtonText: { fontSize: 18 
-  }, 
+  editButton: { marginLeft: 10, justifyContent: 'center' },
+  editButtonText: { fontSize: 18 },
 
   searchItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
-
 });
