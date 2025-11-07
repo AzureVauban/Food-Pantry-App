@@ -1,4 +1,4 @@
-## <span style="color: #60a5fa; font-weight: 500">:LiUsers: Group Members</span>
+## <span style="color: #60a5fa; font-weight: 500">Group Members</span>
 
 | Michael Elder  | Project Manager/Virtual Pantry/Collabative Pantry |
 | -------------- | ------------------------------------------------- |
