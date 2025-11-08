@@ -9,22 +9,41 @@ import {
   onAuthStateChanged,
   signOut,
   User,
+  initializeAuth,
 } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
-import { useRouter } from 'expo-router'; // import router
+import { getReactNativePersistence } from 'firebase/auth/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { initializeApp } from 'firebase/app';
+import { useRouter } from 'expo-router';
+
+// ✅ Firebase config (replace with your own if not already imported elsewhere)
+const firebaseConfig = {
+  apiKey: 'YOUR_API_KEY',
+  authDomain: 'food-pan-94155.firebaseapp.com',
+  projectId: 'food-pan-94155',
+  storageBucket: 'food-pan-94155.appspot.com',
+  messagingSenderId: '941431420769',
+  appId: 'YOUR_APP_ID',
+};
+
+// ✅ Initialize Firebase app and Auth with persistent storage
+const app = initializeApp(firebaseConfig);
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const [user, setUser] = useState<User | null>(null);
-  const router = useRouter(); // create router
+  const router = useRouter();
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
   });
 
-  // Listen to Firebase auth state
+  // ✅ Listen to Firebase Auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -32,7 +51,7 @@ export default function LoginScreen() {
     return unsubscribe;
   }, []);
 
-  // Handle Google login response
+  // ✅ Handle Google login response
   useEffect(() => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
@@ -43,12 +62,12 @@ export default function LoginScreen() {
     }
   }, [response]);
 
-  // Logout handler
+  // ✅ Logout handler
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
         console.log('✅ User signed out');
-        router.replace('/login'); // ✅ go back to login screen
+        router.replace('/login');
       })
       .catch((err) => console.error('❌ Sign out error:', err));
   };
