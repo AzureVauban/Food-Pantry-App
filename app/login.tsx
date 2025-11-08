@@ -10,10 +10,10 @@ import {
   signOut,
   User,
   initializeAuth,
+  getReactNativePersistence,
 } from 'firebase/auth';
-import { getReactNativePersistence } from 'firebase/auth/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { useRouter } from 'expo-router';
 
 // ✅ Firebase config (replace with your own if not already imported elsewhere)
@@ -26,8 +26,10 @@ const firebaseConfig = {
   appId: 'YOUR_APP_ID',
 };
 
-// ✅ Initialize Firebase app and Auth with persistent storage
-const app = initializeApp(firebaseConfig);
+// ✅ Initialize Firebase app safely (avoid re-initialization on reload)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+// ✅ Initialize Auth with AsyncStorage persistence
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
