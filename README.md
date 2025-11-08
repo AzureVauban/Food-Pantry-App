@@ -10,7 +10,7 @@ An inventory manager for food, designed to help users stay efficient in meal pla
 | ------------------ | ------------------------------------------------------- |
 | **Michael Elder**  | Project Manager / Virtual Pantry / Collaborative Pantry |
 | **Ali Jalil**      | Virtual Pantry                                          |
-| **Renne Sanchez**  | Virtual Pantry / Recipe Searching                       |
+| **Rene Sanchez**   | Virtual Pantry / Recipe Searching                       |
 | **Ethan Perez**    | Authentication                                          |
 | **Martin Mendoza** | Grocery List Generator                                  |
 
