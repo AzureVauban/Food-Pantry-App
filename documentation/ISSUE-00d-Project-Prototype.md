@@ -26,19 +26,10 @@ Repo Link: https://github.com/AzureVauban/Food-Pantry-App
 | Recipe Searching                                                       | Grocery List Generation                                                        |
 | Pantry Creation and Implementation                                     | Collaborative Pantry                                                           |
 
----
-
-## <span style="color: #60a5fa; font-weight: 500">Project Adjustments</span>
-
-- The <span style="color: #60a5fa; font-weight: 500">mobile version</span> of the project was discontinued due to persistent <span style="color: #60a5fa; font-weight: 500">authentication configuration issues</span> with <span style="color: #60a5fa; font-weight: 500">Firebase</span> and <span style="color: #60a5fa; font-weight: 500">Google Auth</span> on iOS and Android platforms.  
-  This adjustment allowed the team to focus on delivering a stable and fully functional <span style="color: #60a5fa; font-weight: 500">web application</span> rather than dividing effort between two inconsistent codebases.
+![Gantt Chart Timeline](./gnatt_chart_timeline.png)
 
 ---
 
-## <span style="color: #60a5fa; font-weight: 500"> Successes</span>
-
-- Successful implementation of <span style="color: #60a5fa; font-weight: 500">Google Authentication</span> on the web platform.
-- Completion of the <span style="color: #60a5fa; font-weight: 500">Recipe Search</span> feature with data retrieval through the <span style="color: #60a5fa; font-weight: 500">FatSecret API</span>.
 - Seamless integration between the <span style="color: #60a5fa; font-weight: 500">Pantry Inventory System</span> and <span style="color: #60a5fa; font-weight: 500">Recipe Discovery Flow</span>, enabling dynamic ingredient comparison.
 - Consistent <span style="color: #60a5fa; font-weight: 500">code formatting</span> and <span style="color: #60a5fa; font-weight: 500">repository refactoring</span> improved maintainability and developer collaboration.
 - Enhanced <span style="color: #60a5fa; font-weight: 500">project management structure</span>, ensuring clearer task ownership, dependency mapping, and reduced overlap during feature development.

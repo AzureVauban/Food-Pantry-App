@@ -114,3 +114,5 @@
 <span style="color: #60a5fa; font-weight: 500">What will be worked on next</span>
 
 - Once task scopes are clearly defined, will focus on completing the add, edit, and delete functionality for the Virtual Pantry and ensuring smooth recipe integration.
+
+![Gantt Chart Timeline](./gnatt_chart_timeline.png)
