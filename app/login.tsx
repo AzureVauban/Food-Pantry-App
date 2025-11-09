@@ -3,41 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { Button, View, Text, Image } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import {
-  GoogleAuthProvider,
-  signInWithCredential,
-  onAuthStateChanged,
-  signOut,
-  User,
-  initializeAuth,
-  getReactNativePersistence,
-} from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+//import firebase from '@react-native-firebase/app';
 import { useRouter } from 'expo-router';
-
-// ✅ Firebase config (replace with your own if not already imported elsewhere)
-const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'food-pan-94155.firebaseapp.com',
-  projectId: 'food-pan-94155',
-  storageBucket: 'food-pan-94155.appspot.com',
-  messagingSenderId: '941431420769',
-  appId: 'YOUR_APP_ID',
-};
-
-// ✅ Initialize Firebase app safely (avoid re-initialization on reload)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-
-// ✅ Initialize Auth with AsyncStorage persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-  const [user, setUser] = useState<User | null>(null);
+  // ✅ Use proper FirebaseAuthTypes instead of firebase.User
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const router = useRouter();
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
@@ -45,28 +19,29 @@ export default function LoginScreen() {
       '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
   });
 
-  // ✅ Listen to Firebase Auth state
+  // ✅ Listen for Firebase auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
     });
     return unsubscribe;
   }, []);
 
-  // ✅ Handle Google login response
+  // ✅ Handle Google sign-in result
   useEffect(() => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential).catch((err) =>
-        console.error('Auth error:', err),
-      );
+      const credential = auth.GoogleAuthProvider.credential(id_token);
+      auth()
+        .signInWithCredential(credential)
+        .catch((err) => console.error('Auth error:', err));
     }
   }, [response]);
 
   // ✅ Logout handler
   const handleLogout = () => {
-    signOut(auth)
+    auth()
+      .signOut()
       .then(() => {
         console.log('✅ User signed out');
         router.replace('/login');
@@ -91,7 +66,12 @@ export default function LoginScreen() {
           {user.photoURL && (
             <Image
               source={{ uri: user.photoURL }}
-              style={{ width: 50, height: 50, borderRadius: 25, marginTop: 10 }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginTop: 10,
+              }}
             />
           )}
           <Text>{user.email}</Text>
