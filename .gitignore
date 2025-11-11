@@ -53,3 +53,4 @@ coverage
 .env
 
 .idea/
+*.csv

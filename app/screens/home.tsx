@@ -11,7 +11,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
-import { createPantry, getPantries } from '@/utils/firestorePantry';
+import {
+  createPantry,
+  deletePantry,
+  getPantries,
+} from '@/utils/firestorePantry';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 
 type Pantry = {
@@ -62,6 +66,7 @@ export default function Home() {
     if (!newPantryName.trim() || !userId) return;
     try {
       const pantryId = await createPantry(userId, newPantryName.trim());
+      //console.log('New pantry ID:', pantryId);
       setPantries([...pantries, { id: pantryId, name: newPantryName.trim() }]);
       setNewPantryName('');
       setModalVisible(false);
@@ -79,18 +84,35 @@ export default function Home() {
     }
   };
 
+  const handleDeletedPantry = async (pantryId: string) => {
+    if (!userId) {
+      return;
+    }
+    await deletePantry(userId, pantryId);
+    setPantries(pantries.filter((p) => p.id !== pantryId));
+  };
+
   const renderPantry = ({ item }: { item: Pantry }) => (
-    <Link
-      href={{
-        pathname: '/pantryview',
-        params: { id: item.id, name: item.name },
-      }}
-      asChild
-    >
-      <TouchableOpacity style={styles.pantryCard}>
-        <Text style={styles.pantryText}>{item.name}</Text>
+    <View style={styles.pantryCardContainer}>
+      <Link
+        href={{
+          pathname: '/pantryview',
+          params: { id: item.id, name: item.name },
+        }}
+        asChild
+      >
+        <TouchableOpacity style={styles.pantryCard}>
+          <Text style={styles.pantryText}>{item.name}</Text>
+        </TouchableOpacity>
+      </Link>
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeletedPantry(item.id)}
+      >
+        <Text style={styles.deleteButtonText}>Delete</Text>
       </TouchableOpacity>
-    </Link>
+    </View>
   );
 
   return (
@@ -208,4 +230,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   modalButtonText: { color: '#fff', fontWeight: '600' },
+  pantryCardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F3F4F6',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  deleteButton: {
+    marginLeft: 10,
+    padding: 8,
+  },
+  deleteButtonText: {
+    fontSize: 18,
+  },
 });

@@ -29,6 +29,7 @@ type Item = {
   name: string;
   quantity: string;
 };
+//
 
 export default function PantryScreen() {
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
@@ -112,7 +113,7 @@ export default function PantryScreen() {
     try {
       const itemData = {
         name: newItemName.trim(),
-        quantity: Number(newItemQuantity.trim()),
+        quantity: newItemQuantity.trim(),
       };
 
       const newId = await addPantryItem(userId, id, itemData);
@@ -208,7 +209,7 @@ export default function PantryScreen() {
 
           editPantryItem(userId, id, item.id, {
             name: item.name,
-            quantity: Number(item.quantity),
+            quantity: item.quantity,
           });
         }}
       >
