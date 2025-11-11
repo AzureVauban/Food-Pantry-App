@@ -18,12 +18,15 @@ import * as SplashScreen from 'expo-splash-screen';
 export default function RootLayout() {
   // Load icon fonts (important for web builds where vector icon fonts may not load automatically)
   // On web, point to local copies under /assets/fonts which we copy in postbuild.
-  const webFonts: Record<string, any> = Platform.OS === 'web'
-    ? {
-        Ionicons: { uri: '/assets/fonts/Ionicons.ttf' },
-        MaterialCommunityIcons: { uri: '/assets/fonts/MaterialCommunityIcons.ttf' },
-      }
-    : {};
+  const webFonts: Record<string, any> =
+    Platform.OS === 'web'
+      ? {
+          Ionicons: { uri: '/assets/fonts/Ionicons.ttf' },
+          MaterialCommunityIcons: {
+            uri: '/assets/fonts/MaterialCommunityIcons.ttf',
+          },
+        }
+      : {};
 
   const fontsToLoad = Platform.OS === 'web' ? webFonts : { ...Ionicons.font };
   const [fontsLoaded] = useFonts(fontsToLoad);

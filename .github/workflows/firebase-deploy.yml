@@ -3,7 +3,7 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - master  # or "main" if your default branch is named main
+      - master # or "main" if your default branch is named main
 
 jobs:
   build_and_deploy:
@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}" # provided automatically by GitHub
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          repoToken: '${{ secrets.GITHUB_TOKEN }}' # provided automatically by GitHub
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           channelId: live
           projectId: your-firebase-project-id
