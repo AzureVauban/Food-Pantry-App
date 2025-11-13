@@ -1,0 +1,30 @@
+name: Restrict PR Sources
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+    branches:
+      - master
+      - develop
+
+jobs:
+  enforce-master-source:
+    # Only enforce when the PR targets master
+    if: ${{ github.base_ref == 'master' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce develop-only source for master
+        run: |
+          if [[ "${GITHUB_HEAD_REF}" != "develop" ]]; then
+            echo "❌ PRs to master must come from develop only."
+            exit 1
+          fi
+          echo "✅ master rule satisfied: source is develop."
+
+  pass-develop:
+    # Provide a trivially passing job when the PR targets develop
+    if: ${{ github.base_ref == 'develop' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Allow PRs into develop
+        run: echo "✅ develop PRs allowed from any branch."
