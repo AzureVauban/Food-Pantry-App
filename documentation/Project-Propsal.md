@@ -6,7 +6,7 @@
 | -------------- | ------------------------------------------------- |
 | Michael Elder  | Project Manager/Virtual Pantry/Collabative Pantry |
 | Ali Jalil      | Virtual Pantry                                    |
-| Renne Sanchez  | Virtual Pantry/Recipe Searching                   |
+| Rene Sanchez   | Virtual Pantry/Recipe Searching                   |
 | Ethan Perez    | Authentication                                    |
 | Martin Mendoza | Grocery List Generator                            |
 

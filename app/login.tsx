@@ -3,52 +3,48 @@ import React, { useEffect, useState } from 'react';
 import { Button, View, Text, Image } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import {
-  GoogleAuthProvider,
-  signInWithCredential,
-  onAuthStateChanged,
-  signOut,
-  User,
-} from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
-import { useRouter } from 'expo-router'; // import router
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+//import firebase from '@react-native-firebase/app';
+import { useRouter } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-  const [user, setUser] = useState<User | null>(null);
-  const router = useRouter(); // create router
+  // ✅ Use proper FirebaseAuthTypes instead of firebase.User
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const router = useRouter();
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       '941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com',
   });
 
-  // Listen to Firebase auth state
+  // ✅ Listen for Firebase auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
     });
     return unsubscribe;
   }, []);
 
-  // Handle Google login response
+  // ✅ Handle Google sign-in result
   useEffect(() => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential).catch((err) =>
-        console.error('Auth error:', err),
-      );
+      const credential = auth.GoogleAuthProvider.credential(id_token);
+      auth()
+        .signInWithCredential(credential)
+        .catch((err) => console.error('Auth error:', err));
     }
   }, [response]);
 
-  // Logout handler
+  // ✅ Logout handler
   const handleLogout = () => {
-    signOut(auth)
+    auth()
+      .signOut()
       .then(() => {
         console.log('✅ User signed out');
-        router.replace('/login'); // ✅ go back to login screen
+        router.replace('/login');
       })
       .catch((err) => console.error('❌ Sign out error:', err));
   };
@@ -70,7 +66,12 @@ export default function LoginScreen() {
           {user.photoURL && (
             <Image
               source={{ uri: user.photoURL }}
-              style={{ width: 50, height: 50, borderRadius: 25, marginTop: 10 }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginTop: 10,
+              }}
             />
           )}
           <Text>{user.email}</Text>
