@@ -12,10 +12,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import {
-  getPantryItems,
-  addPantryItem,
-  deletePantryItem,
-  editPantryItem,
+  listenToPantryItems,
+  addPantryItemShared,
+  deletePantryItemShared,
+  editPantryItemShared,
 } from '@/utils/firestorePantry';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -34,7 +34,6 @@ type Item = {
 export default function PantryScreen() {
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
   const searchDebounceRef = useRef<number | null>(null);
-  //const userId = 'user_3fi4yhwj';
   const [userId, setUserId] = useState<string | null>(null);
 
   const [items, setItems] = useState<Item[]>([]);
@@ -79,24 +78,9 @@ export default function PantryScreen() {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
-        try {
-          const pantryItems = await getPantryItems(user.uid, id);
-          setItems(
-            pantryItems.map((item) => ({
-              id: item.id,
-              name: item.name,
-              quantity: String(item.quantity),
-            })),
-          );
-        } catch (err) {
-          console.error('Error fetching pantry items:', err);
-          setError('Failed to load pantry items');
-        } finally {
-          setLoading(false);
-        }
       } else {
         setUserId(null);
         setItems([]);
@@ -104,7 +88,16 @@ export default function PantryScreen() {
       }
     });
 
-    return () => unsubscribe();
+    // listen to pantry items in shared pantry
+    const unsubItems = listenToPantryItems(id, (pantryItems) => {
+      setItems(pantryItems.map((item) => ({ id: item.id, name: item.name, quantity: String(item.quantity ?? '') })));
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubItems) unsubItems();
+    };
   }, [id]);
 
   const handleAddItem = async () => {
@@ -116,11 +109,7 @@ export default function PantryScreen() {
         quantity: newItemQuantity.trim(),
       };
 
-      const newId = await addPantryItem(userId, id, itemData);
-      setItems([
-        ...items,
-        { id: newId, ...itemData, quantity: String(itemData.quantity) },
-      ]);
+      const newId = await addPantryItemShared(id, itemData);
 
       setModalVisible(false);
       setNewItemName('');
@@ -184,9 +173,7 @@ export default function PantryScreen() {
   };
 
   const handleDeletedItem = async (itemId: string) => {
-    if (!userId) return;
-    await deletePantryItem(userId, id, itemId);
-    setItems(items.filter((item) => item.id !== itemId));
+    await deletePantryItemShared(id, itemId);
   };
 
   const renderItem = ({ item }: { item: Item }) => (
@@ -207,7 +194,7 @@ export default function PantryScreen() {
             return;
           }
 
-          editPantryItem(userId, id, item.id, {
+          editPantryItemShared(id, item.id, {
             name: item.name,
             quantity: item.quantity,
           });
