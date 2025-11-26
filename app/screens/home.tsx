@@ -12,15 +12,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import {
-  createPantry,
-  deletePantry,
-  getPantries,
+  createSharedPantry,
+  deleteSharedPantry,
+  getPantriesForUser,
+  joinPantryByCode,
 } from '@/utils/firestorePantry';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 
 type Pantry = {
   id: string;
   name: string;
+  shareCode?: string;
 };
 
 export default function Home() {
@@ -51,8 +53,9 @@ export default function Home() {
     async function fetchPantries() {
       if (!userId) return;
       try {
-        const fetched = await getPantries(userId);
-        setPantries(fetched);
+        const fetched = await getPantriesForUser(userId);
+        // keep the full pantry data (including shareCode) so we can show it
+        setPantries(fetched.map((p: any) => ({ id: p.id, name: p.name, shareCode: p.shareCode })));
       } catch (err) {
         console.error('Error fetching pantries:', err);
       } finally {
@@ -65,13 +68,14 @@ export default function Home() {
   const addPantry = async () => {
     if (!newPantryName.trim() || !userId) return;
     try {
-      const pantryId = await createPantry(userId, newPantryName.trim());
-      //console.log('New pantry ID:', pantryId);
-      setPantries([...pantries, { id: pantryId, name: newPantryName.trim() }]);
+      const { pantryId, shareCode } = await createSharedPantry(userId, newPantryName.trim());
+      setPantries([...pantries, { id: pantryId, name: newPantryName.trim(), shareCode }]);
       setNewPantryName('');
       setModalVisible(false);
+      alert(`Pantry created — share code: ${shareCode}`);
     } catch (err) {
       console.error('Error adding pantry:', err);
+      alert('Failed to create pantry');
     }
   };
 
@@ -84,12 +88,32 @@ export default function Home() {
     }
   };
 
+  const [joinModalVisible, setJoinModalVisible] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+
   const handleDeletedPantry = async (pantryId: string) => {
-    if (!userId) {
-      return;
+    try {
+      await deleteSharedPantry(pantryId);
+      setPantries(pantries.filter((p) => p.id !== pantryId));
+    } catch (err) {
+      console.error('Error deleting pantry:', err);
+      alert('Failed to delete pantry');
     }
-    await deletePantry(userId, pantryId);
-    setPantries(pantries.filter((p) => p.id !== pantryId));
+  };
+
+  const handleJoin = async () => {
+    if (!joinCode.trim() || !userId) return;
+    try {
+      const pantryId = await joinPantryByCode(userId, joinCode.trim().toUpperCase());
+      const fetched = await getPantriesForUser(userId);
+      setPantries(fetched.map((p: any) => ({ id: p.id, name: p.name, shareCode: p.shareCode })));
+      setJoinModalVisible(false);
+      setJoinCode('');
+      alert('Joined pantry');
+    } catch (err) {
+      console.error('Error joining pantry:', err);
+      alert('Failed to join pantry');
+    }
   };
 
   const renderPantry = ({ item }: { item: Pantry }) => (
@@ -106,12 +130,18 @@ export default function Home() {
         </TouchableOpacity>
       </Link>
 
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDeletedPantry(item.id)}
-      >
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
+      <View style={styles.actionButtons}>
+        <Text>
+          <strong>Code: </strong>{item.shareCode ?? 'Share code not available'}
+        </Text>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDeletedPantry(item.id)}
+        >
+          <Text style={styles.deleteButtonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -142,6 +172,12 @@ export default function Home() {
       >
         <Text style={styles.addButtonText}>➕ Add Pantry</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.addButton, { backgroundColor: '#10B981', marginTop: 12 }]}
+        onPress={() => setJoinModalVisible(true)}
+      >
+        <Text style={styles.addButtonText}>🔗 Join Pantry</Text>
+      </TouchableOpacity>
 
       {/* Add Pantry Modal */}
       <Modal
@@ -171,6 +207,40 @@ export default function Home() {
                 onPress={addPantry}
               >
                 <Text style={styles.modalButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Join Pantry Modal */}
+      <Modal
+        transparent
+        visible={joinModalVisible}
+        animationType="slide"
+        onRequestClose={() => setJoinModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Enter Share Code</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Share code"
+              value={joinCode}
+              onChangeText={setJoinCode}
+              autoCapitalize="characters"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
+                onPress={() => setJoinModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#10B981' }]}
+                onPress={handleJoin}
+              >
+                <Text style={styles.modalButtonText}>Join</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -238,6 +308,21 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  codeButton: {
+    backgroundColor: '#F59E0B',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  codeButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    marginRight: 8,
   },
   deleteButton: {
     marginLeft: 10,
