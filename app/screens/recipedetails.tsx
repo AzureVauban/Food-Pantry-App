@@ -45,6 +45,8 @@ export default function RecipeDetails() {
   const [lists, setLists] = useState<GroceryListType[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedListIndex, setSelectedListIndex] = useState<number | null>(null);
+  const [pantryItems, setPantryItems] = useState<{ name: string }[]>([]);
+
 
   const router = useRouter();
 
@@ -72,27 +74,51 @@ export default function RecipeDetails() {
     if (storedLists) setLists(JSON.parse(storedLists));
   }, []);
 
+  // Load pantry
+  useEffect(() => {
+    const storedPantry = localStorage.getItem('pantryItems');
+    if (storedPantry) setPantryItems(JSON.parse(storedPantry));
+  }, []);
+
   const saveListsToStorage = (updatedLists: GroceryListType[]) => {
     localStorage.setItem('groceryLists', JSON.stringify(updatedLists));
     setLists(updatedLists);
   };
 
   const addIngredientsToList = () => {
-    if (selectedListIndex === null || !recipe) return;
+  if (selectedListIndex === null || !recipe) return;
 
-    const updatedLists = [...lists];
-    const targetList = updatedLists[selectedListIndex];
+  const updatedLists = [...lists];
+  const targetList = updatedLists[selectedListIndex];
 
-    recipe.recipe.ingredients.ingredient.forEach((item) => {
-      if (!targetList.items.some((i) => i.name === item.ingredient_description)) {
-        targetList.items.push({ name: item.ingredient_description, quantity: 1, purchased: false });
-      }
-    });
+  const pantryNames = pantryItems.map(item => item.name.toLowerCase());
 
-    saveListsToStorage(updatedLists);
-    setModalVisible(false);
-    alert(`Ingredients added to "${targetList.title}"`);
-  };
+  // Filter ingredients: only add those not already in pantry
+  const missingIngredients = recipe.recipe.ingredients.ingredient.filter(item =>
+    !pantryNames.includes(item.ingredient_description.toLowerCase())
+  );
+
+  // Add ONLY missing ones
+  missingIngredients.forEach(item => {
+    if (!targetList.items.some(i => i.name === item.ingredient_description)) {
+      targetList.items.push({
+        name: item.ingredient_description,
+        quantity: 1,
+        purchased: false,
+      });
+    }
+  });
+
+  saveListsToStorage(updatedLists);
+  setModalVisible(false);
+
+  if (missingIngredients.length === 0) {
+    alert("All ingredients are already in your pantry!");
+  } else {
+    alert(`Added ${missingIngredients.length} missing ingredient(s) to "${targetList.title}".`);
+  }
+};
+
 
   if (loading) return <ActivityIndicator size="large" />;
 
