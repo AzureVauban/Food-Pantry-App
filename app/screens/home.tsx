@@ -53,7 +53,13 @@ export default function Home() {
       try {
         const fetched = await getPantriesForUser(userId);
         // keep the full pantry data (including shareCode) so we can show it
-        setPantries(fetched.map((p: any) => ({ id: p.id, name: p.name, shareCode: p.shareCode })));
+        setPantries(
+          fetched.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            shareCode: p.shareCode,
+          })),
+        );
       } catch (err) {
         console.error('Error fetching pantries:', err);
       } finally {
@@ -66,8 +72,14 @@ export default function Home() {
   const addPantry = async () => {
     if (!newPantryName.trim() || !userId) return;
     try {
-      const { pantryId, shareCode } = await createSharedPantry(userId, newPantryName.trim());
-      setPantries([...pantries, { id: pantryId, name: newPantryName.trim(), shareCode }]);
+      const { pantryId, shareCode } = await createSharedPantry(
+        userId,
+        newPantryName.trim(),
+      );
+      setPantries([
+        ...pantries,
+        { id: pantryId, name: newPantryName.trim(), shareCode },
+      ]);
       setNewPantryName('');
       setModalVisible(false);
       alert(`Pantry created — share code: ${shareCode}`);
@@ -95,7 +107,13 @@ export default function Home() {
     try {
       await joinPantryByCode(userId, joinCode.trim().toUpperCase());
       const fetched = await getPantriesForUser(userId);
-      setPantries(fetched.map((p: any) => ({ id: p.id, name: p.name, shareCode: p.shareCode })));
+      setPantries(
+        fetched.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          shareCode: p.shareCode,
+        })),
+      );
       setJoinModalVisible(false);
       setJoinCode('');
       alert('Joined pantry');
@@ -121,7 +139,8 @@ export default function Home() {
 
       <View style={styles.actionButtons}>
         <Text>
-          <strong>Code: </strong>{item.shareCode ?? 'Share code not available'}
+          <strong>Code: </strong>
+          {item.shareCode ?? 'Share code not available'}
         </Text>
 
         <TouchableOpacity
@@ -162,7 +181,10 @@ export default function Home() {
         <Text style={styles.addButtonText}>➕ Add Pantry</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.addButton, { backgroundColor: '#10B981', marginTop: 12 }]}
+        style={[
+          styles.addButton,
+          { backgroundColor: '#10B981', marginTop: 12 },
+        ]}
         onPress={() => setJoinModalVisible(true)}
       >
         <Text style={styles.addButtonText}>🔗 Join Pantry</Text>

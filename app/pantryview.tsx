@@ -87,7 +87,13 @@ export default function PantryScreen() {
 
     // listen to pantry items in shared pantry
     const unsubItems = listenToPantryItems(id, (pantryItems) => {
-      setItems(pantryItems.map((item) => ({ id: item.id, name: item.name, quantity: String(item.quantity ?? '') })));
+      setItems(
+        pantryItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          quantity: String(item.quantity ?? ''),
+        })),
+      );
       setLoading(false);
     });
 

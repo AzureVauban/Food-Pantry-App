@@ -41,7 +41,8 @@ export async function createPantry(userId: string, pantryName: string) {
 function makeShareCode(length = 6) {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // omit confusing chars
   let out = '';
-  for (let i = 0; i < length; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < length; i++)
+    out += chars[Math.floor(Math.random() * chars.length)];
   return out;
 }
 
@@ -94,19 +95,32 @@ export function listenToPantryItems(
   const itemsRef = collection(db, 'pantries', pantryId, 'items');
   const q = query(itemsRef, orderBy('createdAt'));
   const unsub = onSnapshot(q, (snapshot) => {
-    const items: PantryItem[] = snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as any) }));
+    const items: PantryItem[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as any),
+    }));
     onUpdate(items);
   });
   return unsub;
 }
 
-export async function addPantryItemShared(pantryId: string, item: Omit<PantryItem, 'id'>) {
+export async function addPantryItemShared(
+  pantryId: string,
+  item: Omit<PantryItem, 'id'>,
+) {
   const itemsRef = collection(db, 'pantries', pantryId, 'items');
-  const itemDoc = await addDoc(itemsRef, { ...item, createdAt: serverTimestamp() });
+  const itemDoc = await addDoc(itemsRef, {
+    ...item,
+    createdAt: serverTimestamp(),
+  });
   return itemDoc.id;
 }
 
-export async function editPantryItemShared(pantryId: string, itemId: string, updateData: Partial<PantryItem>) {
+export async function editPantryItemShared(
+  pantryId: string,
+  itemId: string,
+  updateData: Partial<PantryItem>,
+) {
   const itemRef = doc(db, 'pantries', pantryId, 'items', itemId);
   await setDoc(itemRef, updateData, { merge: true });
 }
