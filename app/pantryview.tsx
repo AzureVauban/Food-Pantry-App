@@ -20,9 +20,6 @@ import {
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import app from '@/utils/firebaseConfig';
-//const SEARCH_URL = 'https://searchfoodshttp-ahrruxhnza-uc.a.run.app';
-const SEARCH_URL = 'https://searchfoods-ahrruxhnza-uc.a.run.app';
-const DETAILS_URL = 'https://getfooddetails-ahrruxhnza-uc.a.run.app';
 
 type Item = {
   id: string;
@@ -109,7 +106,7 @@ export default function PantryScreen() {
         quantity: newItemQuantity.trim(),
       };
 
-      const newId = await addPantryItemShared(id, itemData);
+      await addPantryItemShared(id, itemData);
 
       setModalVisible(false);
       setNewItemName('');

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Searchbar } from 'react-native-paper';
+import { Searchbar, Button } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
-import { Button } from 'react-native-paper';
+
 import { searchRecipesCall } from '../../utils/firebaseRecipcall';
 
 interface MySearchProps {

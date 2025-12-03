@@ -17,7 +17,7 @@ import {
   getPantriesForUser,
   joinPantryByCode,
 } from '@/utils/firestorePantry';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 type Pantry = {
   id: string;
@@ -29,7 +29,6 @@ export default function Home() {
   // const userId = 'user_3fi4yhwj'; // Placeholder user ID for demonstration
 
   const [userId, setUserId] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
   const [pantries, setPantries] = useState<Pantry[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,13 +40,12 @@ export default function Home() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user.uid);
-        setUserName(user.displayName || 'User');
       } else {
         router.replace('/login');
       }
     });
     return unsubscribe;
-  }, []);
+  }, [auth, router]);
 
   useEffect(() => {
     async function fetchPantries() {
@@ -79,15 +77,6 @@ export default function Home() {
     }
   };
 
-  const handleLogout = () => {
-    try {
-      signOut(auth);
-      router.replace('/login');
-    } catch (err) {
-      console.error('Error signing out:', err);
-    }
-  };
-
   const [joinModalVisible, setJoinModalVisible] = useState(false);
   const [joinCode, setJoinCode] = useState('');
 
@@ -104,7 +93,7 @@ export default function Home() {
   const handleJoin = async () => {
     if (!joinCode.trim() || !userId) return;
     try {
-      const pantryId = await joinPantryByCode(userId, joinCode.trim().toUpperCase());
+      await joinPantryByCode(userId, joinCode.trim().toUpperCase());
       const fetched = await getPantriesForUser(userId);
       setPantries(fetched.map((p: any) => ({ id: p.id, name: p.name, shareCode: p.shareCode })));
       setJoinModalVisible(false);
