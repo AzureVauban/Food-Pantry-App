@@ -153,6 +153,16 @@ export default function Home() {
     </View>
   );
 
+    <TouchableOpacity
+      style={styles.deleteButton}
+      onPress={() => handleDeletedPantry(item.id)}
+    >
+      <Text style={styles.deleteText}>✕</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Your Pantries</Text>
@@ -262,54 +272,115 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: 16 },
-  pantryCard: {
-    backgroundColor: '#F3F4F6',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+  container: { flex: 1, backgroundColor: '#F9FAFB', padding: 20 },
+
+  title: {
+    fontSize: 26,
+    fontWeight: '700',
+    marginBottom: 16,
+    color: '#111827',
   },
-  pantryText: { fontSize: 16, fontWeight: '600' },
-  empty: { textAlign: 'center', marginTop: 20, color: '#9CA3AF' },
+
+  empty: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#6B7280',
+    fontSize: 16,
+  },
+
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+
+  card: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    borderRadius: 14,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  deleteButton: {
+    marginLeft: 10,
+    backgroundColor: '#FEE2E2',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+
+  deleteText: {
+    color: '#B91C1C',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
   addButton: {
     backgroundColor: '#2563EB',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 18,
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
   },
-  addButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+  addButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '700',
+  },
+
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
+
   modalContent: {
-    width: '80%',
+    width: '85%',
     backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 14,
   },
+
   modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+
   input: {
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 10,
+    padding: 12,
     marginBottom: 16,
+    fontSize: 16,
   },
+
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 10,
   },
+
   modalButton: {
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 10,
   },
+
   modalButtonText: { color: '#fff', fontWeight: '600' },
   pantryCardContainer: {
     flexDirection: 'row',
@@ -343,3 +414,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
+

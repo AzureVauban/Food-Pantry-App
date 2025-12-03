@@ -181,30 +181,21 @@ export default function PantryScreen() {
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.itemCard}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemQuantity}>{item.quantity}</Text>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDeletedItem(item.id)}
-      >
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => {
-          if (!userId || !id) {
-            console.warn('User ID or Pantry ID is missing');
-            return;
-          }
-
-          editPantryItemShared(id, item.id, {
-            name: item.name,
-            quantity: item.quantity,
-          });
-        }}
-      >
-        <Text style={styles.editButtonText}>Edit</Text>
-      </TouchableOpacity>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemQuantity}>{item.quantity}</Text>
+      </View>
+      <View style={styles.itemActions}>
+        <TouchableOpacity onPress={() => handleDeletedItem(item.id)} style={styles.actionButton}>
+          <Text style={styles.deleteButtonText}>🗑️</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => editPantryItem(userId!, id!, item.id, { name: item.name, quantity: item.quantity })}
+          style={styles.actionButton}
+        >
+          <Text style={styles.editButtonText}>✏️</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -313,19 +304,27 @@ export default function PantryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 16 },
+  container: { flex: 1, backgroundColor: '#F9FAFB', padding: 20 },
+  title: { fontSize: 24, fontWeight: '700', marginBottom: 16, color: '#111827' },
   itemCard: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
   },
-  itemName: { fontSize: 16, fontWeight: '600' },
-  itemQuantity: { fontSize: 14, color: '#6B7280' },
-  empty: { textAlign: 'center', marginTop: 20, color: '#9CA3AF' },
+  itemName: { fontSize: 16, fontWeight: '600', color: '#111827' },
+  itemQuantity: { fontSize: 14, color: '#6B7280', marginTop: 4 },
+  itemActions: { flexDirection: 'row', gap: 12 },
+  actionButton: { padding: 4 },
+  deleteButtonText: { fontSize: 20, color: '#EF4444' },
+  editButtonText: { fontSize: 20, color: '#2563EB' },
+  empty: { textAlign: 'center', marginTop: 40, color: '#6B7280' },
   addButton: {
     backgroundColor: '#2563EB',
     padding: 16,
@@ -334,39 +333,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   addButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-  },
-  modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
-  },
-  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
+  modalContent: { width: '85%', backgroundColor: '#fff', padding: 20, borderRadius: 12 },
+  modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 16 },
+  input: { borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 10, padding: 12, marginBottom: 12, backgroundColor: '#F9FAFB' },
+  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12 },
   modalButton: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
   modalButtonText: { color: '#fff', fontWeight: '600' },
-
-  deleteButton: { marginLeft: 10, justifyContent: 'center' },
-  deleteButtonText: { fontSize: 18 },
-
-  editButton: { marginLeft: 10, justifyContent: 'center' },
-  editButtonText: { fontSize: 18 },
-
-  searchItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
+  searchItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
 });
