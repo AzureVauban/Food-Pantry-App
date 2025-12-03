@@ -61,4 +61,6 @@ const GroceryPDFView = forwardRef<HTMLDivElement, GroceryPDFViewProps>(
   },
 );
 
+GroceryPDFView.displayName = 'GroceryPDFView';
+
 export default GroceryPDFView;
