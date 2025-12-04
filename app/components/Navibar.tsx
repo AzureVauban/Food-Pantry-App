@@ -177,7 +177,7 @@ export default function Navibar() {
           </Link>
 
           <Link
-            href="../login"
+            href="/login"
             style={{
               alignItems: 'center',
               textDecorationLine: 'none',
