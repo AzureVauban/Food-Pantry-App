@@ -16,10 +16,13 @@ import {
   addPantryItem,
   deletePantryItem,
   editPantryItem,
+  listenToPantryItems,
 } from '@/utils/firestorePantry';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getDoc, doc } from 'firebase/firestore';
 import app from '@/utils/firebaseConfig';
+import { db } from '@/utils/firebaseConfig';
 //const SEARCH_URL = 'https://searchfoodshttp-ahrruxhnza-uc.a.run.app';
 const SEARCH_URL = 'https://searchfoods-ahrruxhnza-uc.a.run.app';
 const DETAILS_URL = 'https://getfooddetails-ahrruxhnza-uc.a.run.app';
@@ -85,14 +88,34 @@ export default function PantryScreen() {
       if (user) {
         setUserId(user.uid);
         try {
-          const pantryItems = await getPantryItems(user.uid, id);
-          setItems(
-            pantryItems.map((item) => ({
-              id: item.id,
-              name: item.name,
-              quantity: String(item.quantity),
-            })),
-          );
+          // Check if this is a shared pantry by querying the top-level pantries collection
+          const sharedPantryRef = doc(db, 'pantries', id);
+          const sharedPantrySnap = await getDoc(sharedPantryRef);
+          
+          if (sharedPantrySnap.exists()) {
+            // It's a shared pantry - use the real-time listener
+            const unsubPantryItems = listenToPantryItems(id, (items) => {
+              setItems(
+                items.map((item) => ({
+                  id: item.id,
+                  name: item.name,
+                  quantity: String(item.quantity),
+                })),
+              );
+              setLoading(false);
+            });
+            return unsubPantryItems;
+          } else {
+            // It's a personal pantry
+            const pantryItems = await getPantryItems(user.uid, id);
+            setItems(
+              pantryItems.map((item) => ({
+                id: item.id,
+                name: item.name,
+                quantity: String(item.quantity),
+              })),
+            );
+          }
         } catch (err) {
           console.error('Error fetching pantry items:', err);
           setError('Failed to load pantry items');
