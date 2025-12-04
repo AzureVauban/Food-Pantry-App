@@ -40,6 +40,7 @@ export default function PantryScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemQuantity, setNewItemQuantity] = useState('');
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -47,6 +48,7 @@ export default function PantryScreen() {
   const functions = getFunctions(app);
   const searchFoods = httpsCallable(functions, 'searchFoods');
   const getfooddetails = httpsCallable(functions, 'getFoodDetails');
+  
 
   const onChangeSearch = (text: string) => {
     setNewItemName(text);
@@ -179,6 +181,32 @@ export default function PantryScreen() {
     await deletePantryItemShared(id, itemId);
   };
 
+  const startEdit = (item: Item) => {
+    setEditingItemId(item.id);
+    setNewItemName(item.name);
+    setNewItemQuantity(item.quantity);
+    setModalVisible(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingItemId || !userId) return;
+    try {
+      const updated = {
+        name: newItemName.trim(),
+        quantity: newItemQuantity.trim(),
+      };
+      await editPantryItem(userId, id!, editingItemId, updated);
+      setItems(items.map((it) => (it.id === editingItemId ? { ...it, ...updated } : it)));
+      setModalVisible(false);
+      setEditingItemId(null);
+      setNewItemName('');
+      setNewItemQuantity('');
+    } catch (err) {
+      console.error('Error editing pantry item:', err);
+      setError('Failed to edit item');
+    }
+  };
+
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.itemCard}>
       <View style={{ flex: 1 }}>
@@ -190,8 +218,8 @@ export default function PantryScreen() {
           <Text style={styles.deleteButtonText}>🗑️</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => editPantryItem(userId!, id!, item.id, { name: item.name, quantity: item.quantity })}
-          style={styles.actionButton}
+          onPress={() => startEdit(item)}
+          style={styles.actionButton} 
         >
           <Text style={styles.editButtonText}>✏️</Text>
         </TouchableOpacity>
@@ -284,16 +312,22 @@ export default function PantryScreen() {
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  setModalVisible(false);
+                  setEditingItemId(null);
+                  setNewItemName('');
+                  setNewItemQuantity('');
+                }}
               >
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: '#2563EB' }]}
-                onPress={handleAddItem}
+                onPress={editingItemId ? handleSaveEdit : handleAddItem}
               >
-                <Text style={styles.modalButtonText}>Add</Text>
+                <Text style={styles.modalButtonText}>{editingItemId ? 'Save' : 'Add'}</Text>
+
               </TouchableOpacity>
             </View>
           </View>

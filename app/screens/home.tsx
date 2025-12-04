@@ -124,19 +124,26 @@ export default function Home() {
   };
 
   const renderPantry = ({ item }: { item: Pantry }) => (
-    <View style={styles.pantryCardContainer}>
-      <Link
-        href={{
+    <View style={styles.cardRow}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        router.push({
           pathname: '/pantryview',
           params: { id: item.id, name: item.name },
-        }}
-        asChild
-      >
-        <TouchableOpacity style={styles.pantryCard}>
-          <Text style={styles.pantryText}>{item.name}</Text>
-        </TouchableOpacity>
-      </Link>
+        })
+      }
+    >
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={styles.cardTitle}>{item.name}</Text>
 
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDeletedPantry(item.id)}
+        >
+          <Text style={styles.deleteText}>🗑️</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.actionButtons}>
         <Text>
           <strong>Code: </strong>
@@ -160,7 +167,7 @@ export default function Home() {
       <Text style={styles.deleteText}>✕</Text>
     </TouchableOpacity>
   </View>
-);
+  );
 
 
   return (
@@ -313,18 +320,14 @@ const styles = StyleSheet.create({
   },
 
   deleteButton: {
-    marginLeft: 10,
-    backgroundColor: '#FEE2E2',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
+  padding: 4,
+  backgroundColor: "transparent",
+},
+deleteText: {
+  fontSize: 20,
+  color: "#EF4444",
+},
 
-  deleteText: {
-    color: '#B91C1C',
-    fontSize: 16,
-    fontWeight: '700',
-  },
 
   addButton: {
     backgroundColor: '#2563EB',
