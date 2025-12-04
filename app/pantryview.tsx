@@ -253,7 +253,7 @@ export default function PantryScreen() {
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>➕ Add Item</Text>
+        <Text style={styles.addButtonText}>Add Item</Text>
       </TouchableOpacity>
       <Modal
         transparent={true}
@@ -311,7 +311,7 @@ export default function PantryScreen() {
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
+                style={[styles.modalButton, { backgroundColor: '#3f3b3bff' }]}
                 onPress={() => {
                   setModalVisible(false);
                   setEditingItemId(null);
@@ -323,7 +323,7 @@ export default function PantryScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#2563EB' }]}
+                style={[styles.modalButton, { backgroundColor: '#2F4F2F' }]}
                 onPress={editingItemId ? handleSaveEdit : handleAddItem}
               >
                 <Text style={styles.modalButtonText}>{editingItemId ? 'Save' : 'Add'}</Text>
@@ -357,10 +357,10 @@ const styles = StyleSheet.create({
   itemActions: { flexDirection: 'row', gap: 12 },
   actionButton: { padding: 4 },
   deleteButtonText: { fontSize: 20, color: '#EF4444' },
-  editButtonText: { fontSize: 20, color: '#2563EB' },
+  editButtonText: { fontSize: 20, color: '#2F4F2F' },
   empty: { textAlign: 'center', marginTop: 40, color: '#6B7280' },
   addButton: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#2F4F2F',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

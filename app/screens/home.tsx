@@ -177,7 +177,7 @@ export default function Home() {
       {loading ? (
         <ActivityIndicator
           size="large"
-          color="#2563EB"
+          color="#2F4F2F"
           style={{ marginTop: 40 }}
         />
       ) : pantries.length === 0 ? (
@@ -195,7 +195,7 @@ export default function Home() {
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>➕ Add Pantry</Text>
+        <Text style={styles.addButtonText}> Add Pantry</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[
@@ -225,13 +225,13 @@ export default function Home() {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
+                style={[styles.modalButton, { backgroundColor: '#3f3b3bff' }]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#2563EB' }]}
+                style={[styles.modalButton, { backgroundColor: '#2F4F2F' }]}
                 onPress={addPantry}
               >
                 <Text style={styles.modalButtonText}>Add</Text>
@@ -330,19 +330,19 @@ deleteText: {
 
 
   addButton: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#2F4F2F',
     padding: 16,
     borderRadius: 14,
     alignItems: 'center',
     marginTop: 18,
-    shadowColor: '#2563EB',
+    shadowColor: '#2F4F2F',
     shadowOpacity: 0.3,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 4 },
   },
 
   addButtonText: {
-    color: '#fff',
+    color: '#F7F7E8',
     fontSize: 17,
     fontWeight: '700',
   },
