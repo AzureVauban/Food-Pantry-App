@@ -6,9 +6,10 @@ import { searchRecipesCall } from '../../utils/firebaseRecipcall';
 
 interface MySearchProps {
   onSearchResults: (results: any) => void;
+  searchButtonColor?: string; 
 }
 
-const MySearch = ({ onSearchResults }: MySearchProps) => {
+const MySearch = ({ onSearchResults, searchButtonColor }: MySearchProps) => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
@@ -45,7 +46,8 @@ const MySearch = ({ onSearchResults }: MySearchProps) => {
           mode="contained"
           onPress={handleSearch}
           loading={loading}
-          style={styles.button}
+          style={[styles.button, { backgroundColor: searchButtonColor || undefined }]} 
+          labelStyle={{ color: 'white', fontWeight: 'bold' }}
         >
           Search
         </Button>
@@ -78,3 +80,4 @@ const styles = StyleSheet.create({
 });
 
 export default MySearch;
+
