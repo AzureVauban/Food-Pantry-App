@@ -25,7 +25,7 @@ import { useRouter } from "expo-router";
 WebBrowser.maybeCompleteAuthSession();
 
 /* ---------------------------------------------------------
-   HoverButton (Web-only hover + press animation)
+   HoverButton (hover + press animation, TS-safe)
 --------------------------------------------------------- */
 const HoverButton = ({
   children,
@@ -46,7 +46,7 @@ const HoverButton = ({
     }).start();
   };
 
-  // Build style WITHOUT undefined values
+  // Build style object without undefined width
   const animatedStyle: any = {
     alignSelf: "center",
     transform: [
@@ -55,7 +55,7 @@ const HoverButton = ({
           scaleValue,
           hoverAnim.interpolate({
             inputRange: [0, 1],
-            outputRange: [1, 1.03],
+            outputRange: [1, 1.03], // slightly bigger on hover
           })
         ),
       },
@@ -69,8 +69,8 @@ const HoverButton = ({
   return (
     <Animated.View style={animatedStyle}>
       <Pressable
-        onHoverIn={() => animateHover(1)}
-        onHoverOut={() => animateHover(0)}
+        onHoverIn={() => animateHover(1)}   // web hover start
+        onHoverOut={() => animateHover(0)}  // web hover end
       >
         {children}
       </Pressable>
@@ -78,7 +78,9 @@ const HoverButton = ({
   );
 };
 
-
+/* ---------------------------------------------------------
+   Login Screen
+--------------------------------------------------------- */
 export default function LoginScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
@@ -92,12 +94,11 @@ export default function LoginScreen() {
       "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com",
   });
 
-  /* ---------------------------------------------------------
-     Animation Values
-  --------------------------------------------------------- */
+  // Card animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
+  // Button press-scale values
   const loginButtonScale = useRef(new Animated.Value(1)).current;
   const homeButtonScale = useRef(new Animated.Value(1)).current;
   const logoutButtonScale = useRef(new Animated.Value(1)).current;
@@ -164,6 +165,11 @@ export default function LoginScreen() {
       setAuthError(null);
 
       signInWithCredential(auth, credential)
+        .then(() => {
+          setTimeout(() => {
+          router.replace("/screens/home");
+         });
+        })
         .catch(() => setAuthError("Failed to sign in. Please try again."))
         .finally(() => setSigningIn(false));
     } else if (response) {
@@ -174,7 +180,11 @@ export default function LoginScreen() {
     }
   }, [response]);
 
+  /* ---------------------------------------------------------
+     Handlers
+  --------------------------------------------------------- */
   const handleLogin = () => {
+    if (!request || signingIn) return;
     setAuthError(null);
     setSigningIn(true);
     promptAsync();
@@ -228,23 +238,18 @@ export default function LoginScreen() {
           padding: 24,
           borderRadius: 20,
           backgroundColor: "#ffffff",
-
           shadowColor: "#000",
           shadowOpacity: 0.15,
           shadowRadius: 18,
           shadowOffset: { width: 0, height: 8 },
           elevation: 12,
-
           alignItems: "center",
-
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
         }}
       >
         {!user ? (
-          /* ---------------------------------------------------------
-             LOGIN CARD
-          --------------------------------------------------------- */
+          /* ---------------- LOGIN CARD ---------------- */
           <>
             <Text
               style={{
@@ -281,10 +286,7 @@ export default function LoginScreen() {
                     ? "Signing in…"
                     : "Sign In"
                 }
-                onPress={() => {
-                  if (!request || signingIn) return;
-                  animatePress(loginButtonScale, handleLogin);
-                }}
+                onPress={() => animatePress(loginButtonScale, handleLogin)}
               />
             </HoverButton>
 
@@ -316,9 +318,7 @@ export default function LoginScreen() {
             </Text>
           </>
         ) : (
-          /* ---------------------------------------------------------
-             WELCOME BACK CARD
-          --------------------------------------------------------- */
+          /* --------------- WELCOME BACK CARD ------------- */
           <>
             <Text
               style={{
