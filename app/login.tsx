@@ -1,11 +1,14 @@
 // app/login.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Button,
   View,
   Text,
   Image,
   ActivityIndicator,
+  Animated,
+  Easing,
+  Platform,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
@@ -34,16 +37,44 @@ export default function LoginScreen() {
       "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com",
   });
 
+  // Animation values for the card
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
   // Listen to Firebase auth state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoadingSession(false);
     });
-    return unsubscribe;
+    return unsub;
   }, []);
 
-  // Handle Google login response
+  // Animate card on load AND on user change
+  useEffect(() => {
+    if (loadingSession) return;
+
+    // reset animation
+    fadeAnim.setValue(0);
+    slideAnim.setValue(20);
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [loadingSession, user]);
+
+  // Handle Google OAuth result
   useEffect(() => {
     if (response?.type === "success") {
       const { id_token } = response.params;
@@ -52,18 +83,12 @@ export default function LoginScreen() {
       setAuthError(null);
 
       signInWithCredential(auth, credential)
-        .then(() => {
-          router.replace("/screens/home");
-        })
         .catch((err) => {
           console.error("Auth error:", err);
           setAuthError("Failed to sign in. Please try again.");
         })
-        .finally(() => {
-          setSigningIn(false);
-        });
+        .finally(() => setSigningIn(false));
     } else if (response) {
-      // cancelled / dismissed / error
       setSigningIn(false);
       if (response.type !== "dismiss") {
         setAuthError("Sign-in was cancelled or blocked.");
@@ -71,30 +96,22 @@ export default function LoginScreen() {
     }
   }, [response]);
 
-  // Login button handler
   const handleLogin = () => {
-    if (!request) return;
     setAuthError(null);
     setSigningIn(true);
-    // promptAsync triggers the Google flow
     promptAsync();
   };
 
-  // Logout handler
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        console.log("✅ User signed out");
         setUser(null);
         router.replace("/login");
       })
-      .catch((err) => {
-        console.error("❌ Sign out error:", err);
-        setAuthError("Failed to sign out. Please try again.");
-      });
+      .catch(() => setAuthError("Failed to sign out. Please try again."));
   };
 
-  // While restoring existing session
+  // While restoring session
   if (loadingSession) {
     return (
       <View
@@ -121,21 +138,30 @@ export default function LoginScreen() {
         backgroundColor: "#f5f5f5",
       }}
     >
-      <View
+      <Animated.View
         style={{
           width: 360,
           maxWidth: "90%",
           padding: 24,
-          borderRadius: 16,
+          borderRadius: 20,
           backgroundColor: "#ffffff",
+
+          // 🔥 upgraded card shadow
           shadowColor: "#000",
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
-          elevation: 2,
+          shadowOpacity: 0.15,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 12,
+
           alignItems: "center",
+
+          // animations
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
         }}
       >
         {!user ? (
+          // ------------------ LOGIN CARD ------------------
           <>
             <Text
               style={{
@@ -145,8 +171,9 @@ export default function LoginScreen() {
                 textAlign: "center",
               }}
             >
-              Welcome to the Food Pantry App
+              Welcome to Food Pantry App
             </Text>
+
             <Text
               style={{
                 color: "#555",
@@ -154,11 +181,12 @@ export default function LoginScreen() {
                 textAlign: "center",
               }}
             >
-              Sign in with Google to manage your pantry.
+              Sign in with Google to start managing your pantry.
             </Text>
 
             <Button
               disabled={!request || signingIn}
+              color="#27b33aff"
               title={
                 !request
                   ? "Preparing sign-in…"
@@ -197,6 +225,7 @@ export default function LoginScreen() {
             </Text>
           </>
         ) : (
+          // ------------------ WELCOME BACK CARD ------------------
           <>
             <Text
               style={{
@@ -208,7 +237,7 @@ export default function LoginScreen() {
             >
               Welcome Back
             </Text>
-            {/* Profile picture */}
+
             {user.photoURL && (
               <Image
                 source={{ uri: user.photoURL }}
@@ -231,6 +260,7 @@ export default function LoginScreen() {
             >
               {user.displayName}
             </Text>
+
             <Text
               style={{
                 color: "#444",
@@ -243,12 +273,13 @@ export default function LoginScreen() {
 
             <Button
               title="Go to Home"
+              color="#27b33aff"
               onPress={() => router.replace("/screens/home")}
             />
 
             <View style={{ height: 10 }} />
 
-            <Button color="#db193dff" title="Logout" onPress={handleLogout} />
+            <Button title="Logout" color="#db193dff" onPress={handleLogout} />
 
             {authError && (
               <View
@@ -267,7 +298,7 @@ export default function LoginScreen() {
             )}
           </>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
