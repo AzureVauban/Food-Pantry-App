@@ -17,6 +17,9 @@ import {
   deletePantryItem,
   editPantryItem,
   listenToPantryItems,
+  addPantryItemShared,
+  editPantryItemShared,
+  deletePantryItemShared,
 } from '@/utils/firestorePantry';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -39,6 +42,7 @@ export default function PantryScreen() {
   const searchDebounceRef = useRef<number | null>(null);
   //const userId = 'user_3fi4yhwj';
   const [userId, setUserId] = useState<string | null>(null);
+  const [isSharedPantry, setIsSharedPantry] = useState(false);
 
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,6 +98,7 @@ export default function PantryScreen() {
           
           if (sharedPantrySnap.exists()) {
             // It's a shared pantry - use the real-time listener
+            setIsSharedPantry(true);
             const unsubPantryItems = listenToPantryItems(id, (items) => {
               setItems(
                 items.map((item) => ({
@@ -107,6 +112,7 @@ export default function PantryScreen() {
             return unsubPantryItems;
           } else {
             // It's a personal pantry
+            setIsSharedPantry(false);
             const pantryItems = await getPantryItems(user.uid, id);
             setItems(
               pantryItems.map((item) => ({
@@ -141,11 +147,16 @@ export default function PantryScreen() {
         quantity: newItemQuantity.trim(),
       };
 
-      const newId = await addPantryItem(userId, id, itemData);
-      setItems([
-        ...items,
-        { id: newId, ...itemData, quantity: String(itemData.quantity) },
-      ]);
+      if (isSharedPantry) {
+        await addPantryItemShared(id, itemData);
+        // The real-time listener will automatically update items
+      } else {
+        const newId = await addPantryItem(userId, id, itemData);
+        setItems([
+          ...items,
+          { id: newId, ...itemData, quantity: String(itemData.quantity) },
+        ]);
+      }
 
       setModalVisible(false);
       setNewItemName('');
@@ -210,8 +221,13 @@ export default function PantryScreen() {
 
   const handleDeletedItem = async (itemId: string) => {
     if (!userId) return;
-    await deletePantryItem(userId, id, itemId);
-    setItems(items.filter((item) => item.id !== itemId));
+    if (isSharedPantry) {
+      await deletePantryItemShared(id, itemId);
+      // The real-time listener will automatically update items
+    } else {
+      await deletePantryItem(userId, id, itemId);
+      setItems(items.filter((item) => item.id !== itemId));
+    }
   };
 
   const startEdit = (item: Item) => {
@@ -228,8 +244,13 @@ export default function PantryScreen() {
         name: newItemName.trim(),
         quantity: newItemQuantity.trim(),
       };
-      await editPantryItem(userId, id!, editingItemId, updated);
-      setItems(items.map((it) => (it.id === editingItemId ? { ...it, ...updated } : it)));
+      if (isSharedPantry) {
+        await editPantryItemShared(id, editingItemId, updated);
+        // The real-time listener will automatically update items
+      } else {
+        await editPantryItem(userId, id!, editingItemId, updated);
+        setItems(items.map((it) => (it.id === editingItemId ? { ...it, ...updated } : it)));
+      }
       setModalVisible(false);
       setEditingItemId(null);
       setNewItemName('');
