@@ -109,7 +109,8 @@ export default function PantryScreen() {
               );
               setLoading(false);
             });
-            return unsubPantryItems;
+            // Return cleanup function
+            return () => unsubPantryItems();
           } else {
             // It's a personal pantry
             setIsSharedPantry(false);
@@ -121,11 +122,11 @@ export default function PantryScreen() {
                 quantity: String(item.quantity),
               })),
             );
+            setLoading(false);
           }
         } catch (err) {
           console.error('Error fetching pantry items:', err);
           setError('Failed to load pantry items');
-        } finally {
           setLoading(false);
         }
       } else {
