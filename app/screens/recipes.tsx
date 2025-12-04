@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from 'react-native-paper';
 import MySearch from '../components/Searchbar';
@@ -27,9 +28,12 @@ export default function Recipes() {
   const [showSaved, setShowSaved] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    loadSavedRecipes();
-  }, []);
+  // Use useFocusEffect to reload saved recipes when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      loadSavedRecipes();
+    }, [])
+  );
 
   const loadSavedRecipes = async () => {
     try {
