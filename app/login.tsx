@@ -52,6 +52,9 @@ export default function LoginScreen() {
       setAuthError(null);
 
       signInWithCredential(auth, credential)
+        .then(() => {
+          router.replace("/screens/home");
+        })
         .catch((err) => {
           console.error("Auth error:", err);
           setAuthError("Failed to sign in. Please try again.");
@@ -142,7 +145,7 @@ export default function LoginScreen() {
                 textAlign: "center",
               }}
             >
-              Welcome to Food Pantry App
+              Welcome to the Food Pantry App
             </Text>
             <Text
               style={{
@@ -161,7 +164,7 @@ export default function LoginScreen() {
                   ? "Preparing sign-in…"
                   : signingIn
                   ? "Signing in…"
-                  : "Sign in with Google"
+                  : "Sign in"
               }
               onPress={handleLogin}
             />
@@ -176,7 +179,7 @@ export default function LoginScreen() {
                   backgroundColor: "#ffe9ea",
                 }}
               >
-                <Text style={{ color: "#b00020", textAlign: "center" }}>
+                <Text style={{ color: "#db193dff", textAlign: "center" }}>
                   {authError}
                 </Text>
               </View>
@@ -203,7 +206,7 @@ export default function LoginScreen() {
                 textAlign: "center",
               }}
             >
-              Welcome Back!
+              Welcome Back
             </Text>
             {/* Profile picture */}
             {user.photoURL && (
@@ -245,7 +248,7 @@ export default function LoginScreen() {
 
             <View style={{ height: 10 }} />
 
-            <Button color="#b00020" title="Logout" onPress={handleLogout} />
+            <Button color="#db193dff" title="Logout" onPress={handleLogout} />
 
             {authError && (
               <View
@@ -257,7 +260,7 @@ export default function LoginScreen() {
                   backgroundColor: "#ffe9ea",
                 }}
               >
-                <Text style={{ color: "#b00020", textAlign: "center" }}>
+                <Text style={{ color: "#db193dff", textAlign: "center" }}>
                   {authError}
                 </Text>
               </View>
