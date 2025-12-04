@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
+  Pressable,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
@@ -23,6 +24,61 @@ import { useRouter } from "expo-router";
 
 WebBrowser.maybeCompleteAuthSession();
 
+/* ---------------------------------------------------------
+   HoverButton (Web-only hover + press animation)
+--------------------------------------------------------- */
+const HoverButton = ({
+  children,
+  scaleValue,
+  width,
+}: {
+  children: React.ReactNode;
+  scaleValue: Animated.Value;
+  width?: number | string;
+}) => {
+  const hoverAnim = useRef(new Animated.Value(0)).current;
+
+  const animateHover = (toValue: number) => {
+    Animated.timing(hoverAnim, {
+      toValue,
+      duration: 120,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Build style WITHOUT undefined values
+  const animatedStyle: any = {
+    alignSelf: "center",
+    transform: [
+      {
+        scale: Animated.multiply(
+          scaleValue,
+          hoverAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 1.03],
+          })
+        ),
+      },
+    ],
+  };
+
+  if (width !== undefined) {
+    animatedStyle.width = width;
+  }
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Pressable
+        onHoverIn={() => animateHover(1)}
+        onHoverOut={() => animateHover(0)}
+      >
+        {children}
+      </Pressable>
+    </Animated.View>
+  );
+};
+
+
 export default function LoginScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
@@ -36,11 +92,12 @@ export default function LoginScreen() {
       "941431420769-fa4v2jvbehe5lvj4sqmroa4e4aqqe702.apps.googleusercontent.com",
   });
 
-  // Animation values for the card
+  /* ---------------------------------------------------------
+     Animation Values
+  --------------------------------------------------------- */
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
-  // Animation values for buttons
   const loginButtonScale = useRef(new Animated.Value(1)).current;
   const homeButtonScale = useRef(new Animated.Value(1)).current;
   const logoutButtonScale = useRef(new Animated.Value(1)).current;
@@ -60,7 +117,9 @@ export default function LoginScreen() {
     ]).start(() => action());
   };
 
-  // Listen to Firebase auth state
+  /* ---------------------------------------------------------
+     Firebase: Listen to auth state
+  --------------------------------------------------------- */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -69,31 +128,34 @@ export default function LoginScreen() {
     return unsub;
   }, []);
 
-  // Animate card on load AND on user change
+  /* ---------------------------------------------------------
+     Animate card on load or user change
+  --------------------------------------------------------- */
   useEffect(() => {
     if (loadingSession) return;
 
-    // reset animation
     fadeAnim.setValue(0);
     slideAnim.setValue(20);
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 500,
+        duration: 400,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 500,
+        duration: 400,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
     ]).start();
   }, [loadingSession, user]);
 
-  // Handle Google OAuth result
+  /* ---------------------------------------------------------
+     Handle Google OAuth Result
+  --------------------------------------------------------- */
   useEffect(() => {
     if (response?.type === "success") {
       const { id_token } = response.params;
@@ -102,10 +164,7 @@ export default function LoginScreen() {
       setAuthError(null);
 
       signInWithCredential(auth, credential)
-        .catch((err) => {
-          console.error("Auth error:", err);
-          setAuthError("Failed to sign in. Please try again.");
-        })
+        .catch(() => setAuthError("Failed to sign in. Please try again."))
         .finally(() => setSigningIn(false));
     } else if (response) {
       setSigningIn(false);
@@ -130,7 +189,9 @@ export default function LoginScreen() {
       .catch(() => setAuthError("Failed to sign out. Please try again."));
   };
 
-  // While restoring session
+  /* ---------------------------------------------------------
+     Loading screen
+  --------------------------------------------------------- */
   if (loadingSession) {
     return (
       <View
@@ -147,6 +208,9 @@ export default function LoginScreen() {
     );
   }
 
+  /* ---------------------------------------------------------
+     Main UI
+  --------------------------------------------------------- */
   return (
     <View
       style={{
@@ -165,7 +229,6 @@ export default function LoginScreen() {
           borderRadius: 20,
           backgroundColor: "#ffffff",
 
-          // Card shadow
           shadowColor: "#000",
           shadowOpacity: 0.15,
           shadowRadius: 18,
@@ -174,13 +237,14 @@ export default function LoginScreen() {
 
           alignItems: "center",
 
-          // Card animations
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
         }}
       >
         {!user ? (
-          // ------------------ LOGIN CARD ------------------
+          /* ---------------------------------------------------------
+             LOGIN CARD
+          --------------------------------------------------------- */
           <>
             <Text
               style={{
@@ -203,29 +267,26 @@ export default function LoginScreen() {
               Sign in with Google to start managing your pantry.
             </Text>
 
-            <Animated.View
-              style={{
-                transform: [{ scale: loginButtonScale }],
-                width: signingIn ? "35%" : "25%",
-                marginBottom: 10,
-              }}
+            <HoverButton
+              scaleValue={loginButtonScale}
+              width={signingIn ? "35%" : "25%"}
             >
               <Button
                 disabled={!request || signingIn}
                 color="#27b33aff"
                 title={
                   !request
-                    ? "Preparing sign-in…"
+                    ? "Preparing…"
                     : signingIn
                     ? "Signing in…"
-                    : "Sign in"
+                    : "Sign In"
                 }
                 onPress={() => {
                   if (!request || signingIn) return;
                   animatePress(loginButtonScale, handleLogin);
                 }}
               />
-            </Animated.View>
+            </HoverButton>
 
             {authError && (
               <View
@@ -255,7 +316,9 @@ export default function LoginScreen() {
             </Text>
           </>
         ) : (
-          // ------------------ WELCOME BACK CARD ------------------
+          /* ---------------------------------------------------------
+             WELCOME BACK CARD
+          --------------------------------------------------------- */
           <>
             <Text
               style={{
@@ -301,13 +364,7 @@ export default function LoginScreen() {
               {user.email}
             </Text>
 
-            <Animated.View
-              style={{
-                transform: [{ scale: homeButtonScale }],
-                width: "34%",
-                marginBottom: 10,
-              }}
-            >
+            <HoverButton scaleValue={homeButtonScale} width="34%">
               <Button
                 title="Go to Home"
                 color="#27b33aff"
@@ -317,20 +374,17 @@ export default function LoginScreen() {
                   )
                 }
               />
-            </Animated.View>
+            </HoverButton>
 
-            <Animated.View
-              style={{
-                transform: [{ scale: logoutButtonScale }],
-                width: "24%",
-              }}
-            >
+            <View style={{ height: 10 }} />
+
+            <HoverButton scaleValue={logoutButtonScale} width="24%">
               <Button
                 title="Logout"
                 color="#db193dff"
                 onPress={() => animatePress(logoutButtonScale, handleLogout)}
               />
-            </Animated.View>
+            </HoverButton>
 
             {authError && (
               <View
