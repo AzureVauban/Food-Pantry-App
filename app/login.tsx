@@ -191,13 +191,16 @@ export default function LoginScreen() {
   };
 
   const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        setUser(null);
+  signOut(auth)
+    .then(() => {
+      setUser(null);
+      // Add a small delay to ensure auth state updates before navigation
+      setTimeout(() => {
         router.replace("/login");
-      })
-      .catch(() => setAuthError("Failed to sign out. Please try again."));
-  };
+      }, 100);
+    })
+    .catch(() => setAuthError("Failed to sign out. Please try again."));
+};
 
   /* ---------------------------------------------------------
      Loading screen
