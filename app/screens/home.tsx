@@ -150,29 +150,17 @@ export default function Home() {
           {item.shareCode ?? 'Share code not available'}
         </Text>
 
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeletedPantry(item.id)}
-        >
-          <Text style={styles.deleteButtonText}>Delete</Text>
-        </TouchableOpacity>
+        
       </View>
+      </TouchableOpacity>
     </View>
   );
 
-    <TouchableOpacity
-      style={styles.deleteButton}
-      onPress={() => handleDeletedPantry(item.id)}
-    >
-      <Text style={styles.deleteText}>✕</Text>
-    </TouchableOpacity>
-  </View>
-  );
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Your Pantries</Text>
+      <Text style={styles.title}>Pantries List:</Text>
 
       {loading ? (
         <ActivityIndicator
@@ -200,7 +188,7 @@ export default function Home() {
       <TouchableOpacity
         style={[
           styles.addButton,
-          { backgroundColor: '#10B981', marginTop: 12 },
+          { backgroundColor: '#2F4F2F', marginTop: 12 },
         ]}
         onPress={() => setJoinModalVisible(true)}
       >
@@ -259,13 +247,13 @@ export default function Home() {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#6B7280' }]}
+                style={[styles.modalButton, { backgroundColor: '#3f3b3bff' }]}
                 onPress={() => setJoinModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#10B981' }]}
+                style={[styles.modalButton, { backgroundColor: '#2F4F2F' }]}
                 onPress={handleJoin}
               >
                 <Text style={styles.modalButtonText}>Join</Text>
@@ -408,10 +396,6 @@ deleteText: {
     color: '#fff',
     fontWeight: '700',
     marginRight: 8,
-  },
-  deleteButton: {
-    marginLeft: 10,
-    padding: 8,
   },
   deleteButtonText: {
     fontSize: 18,

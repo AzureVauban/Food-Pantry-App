@@ -62,7 +62,7 @@ export default function Navibar() {
       <View
         style={{
           width: '20%',
-          backgroundColor: colors.dark.background,
+          backgroundColor: '#2F4F2F',//bacjground whole color
           paddingVertical: 16,
           borderRightWidth: 1,
           borderRightColor: colors.dark.primary + '20',
@@ -74,7 +74,7 @@ export default function Navibar() {
         <View style={{ marginBottom: 32, alignItems: 'center' }}>
           <Text
             style={{
-              color: colors.dark.vibrantAccent,
+              color: '#fff',
               fontSize: 12,
               fontWeight: 'bold',
               marginTop: 4,
@@ -98,7 +98,7 @@ export default function Navibar() {
             <Ionicons name="cube" size={24} color={colors.dark.primary} />
             <Text
               style={{
-                color: colors.dark.primary,
+                color: '#fff',
                 marginTop: 4,
                 fontSize: 24,
                 textAlign: 'center',
@@ -120,7 +120,7 @@ export default function Navibar() {
             <Ionicons name="basket" size={24} color={colors.dark.primary} />
             <Text
               style={{
-                color: colors.dark.primary,
+                color: '#fff',
                 marginTop: 4,
                 fontSize: 24,
                 textAlign: 'center',
@@ -145,7 +145,7 @@ export default function Navibar() {
             />
             <Text
               style={{
-                color: colors.dark.primary,
+                color: '#fff',
                 marginTop: 4,
                 fontSize: 24,
                 textAlign: 'center',
@@ -166,7 +166,7 @@ export default function Navibar() {
             <Ionicons name="settings" size={24} color={colors.dark.primary} />
             <Text
               style={{
-                color: colors.dark.primary,
+                color: '#fff',
                 marginTop: 4,
                 fontSize: 24,
                 textAlign: 'center',
@@ -188,7 +188,7 @@ export default function Navibar() {
             <Ionicons name="push" size={24} color={colors.dark.primary} />
             <Text
               style={{
-                color: colors.dark.primary,
+                color: '#fff',
                 marginTop: 4,
                 fontSize: 24,
                 textAlign: 'center',
