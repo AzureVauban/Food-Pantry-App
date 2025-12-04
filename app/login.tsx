@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
-  Platform,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
@@ -40,6 +39,26 @@ export default function LoginScreen() {
   // Animation values for the card
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
+
+  // Animation values for buttons
+  const loginButtonScale = useRef(new Animated.Value(1)).current;
+  const homeButtonScale = useRef(new Animated.Value(1)).current;
+  const logoutButtonScale = useRef(new Animated.Value(1)).current;
+
+  const animatePress = (scale: Animated.Value, action: () => void) => {
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 0.97,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start(() => action());
+  };
 
   // Listen to Firebase auth state
   useEffect(() => {
@@ -146,7 +165,7 @@ export default function LoginScreen() {
           borderRadius: 20,
           backgroundColor: "#ffffff",
 
-          // 🔥 upgraded card shadow
+          // Card shadow
           shadowColor: "#000",
           shadowOpacity: 0.15,
           shadowRadius: 18,
@@ -155,7 +174,7 @@ export default function LoginScreen() {
 
           alignItems: "center",
 
-          // animations
+          // Card animations
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
         }}
@@ -184,18 +203,29 @@ export default function LoginScreen() {
               Sign in with Google to start managing your pantry.
             </Text>
 
-            <Button
-              disabled={!request || signingIn}
-              color="#27b33aff"
-              title={
-                !request
-                  ? "Preparing sign-in…"
-                  : signingIn
-                  ? "Signing in…"
-                  : "Sign in"
-              }
-              onPress={handleLogin}
-            />
+            <Animated.View
+              style={{
+                transform: [{ scale: loginButtonScale }],
+                width: signingIn ? "35%" : "25%",
+                marginBottom: 10,
+              }}
+            >
+              <Button
+                disabled={!request || signingIn}
+                color="#27b33aff"
+                title={
+                  !request
+                    ? "Preparing sign-in…"
+                    : signingIn
+                    ? "Signing in…"
+                    : "Sign in"
+                }
+                onPress={() => {
+                  if (!request || signingIn) return;
+                  animatePress(loginButtonScale, handleLogin);
+                }}
+              />
+            </Animated.View>
 
             {authError && (
               <View
@@ -271,15 +301,36 @@ export default function LoginScreen() {
               {user.email}
             </Text>
 
-            <Button
-              title="Go to Home"
-              color="#27b33aff"
-              onPress={() => router.replace("/screens/home")}
-            />
+            <Animated.View
+              style={{
+                transform: [{ scale: homeButtonScale }],
+                width: "34%",
+                marginBottom: 10,
+              }}
+            >
+              <Button
+                title="Go to Home"
+                color="#27b33aff"
+                onPress={() =>
+                  animatePress(homeButtonScale, () =>
+                    router.replace("/screens/home")
+                  )
+                }
+              />
+            </Animated.View>
 
-            <View style={{ height: 10 }} />
-
-            <Button title="Logout" color="#db193dff" onPress={handleLogout} />
+            <Animated.View
+              style={{
+                transform: [{ scale: logoutButtonScale }],
+                width: "24%",
+              }}
+            >
+              <Button
+                title="Logout"
+                color="#db193dff"
+                onPress={() => animatePress(logoutButtonScale, handleLogout)}
+              />
+            </Animated.View>
 
             {authError && (
               <View
